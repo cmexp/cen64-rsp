@@ -1,0 +1,7 @@
+# Compiler speak.
+librsp.a
+*.o
+
+# Swap files.
+*.swp
+

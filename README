@@ -1,0 +1,19 @@
+==============================================================================
+ RSPSIM: A cycle-accurate Reality Signal Processor (RSP) simulator.
+==============================================================================
+
+To my knowledge, this is not only the first-ever implementation of a cycle-
+accurate model of the RSP, but is also the first RSP emulator to even offer
+SSSE3/SSE4.x support.
+
+This simulator is a work in-progress. It has been designed such that it is
+completely self-standing, and only requires a C99/C++0x compiler. Support for
+additional features (i.e., SSE) are added where possible, but have been
+conditionally defined in order to support platforms not capable of supporting
+those features natively.
+
+Most of this work would not have been possible without the years of effort
+put in by most of the community. I have simply refined whatever findings that
+I've found. I owe much of the progress I've made to others; and for that, I
+thank you. You all know who you are.
+

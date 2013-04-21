@@ -1,4 +1,6 @@
 # Compiler speak.
+Tests/Objects
+Tests/rspsim
 librsp.a
 *.o
 

@@ -443,11 +443,43 @@ RSPVCR(struct RSPCP2 *cp2, uint32_t unused(iw)) {
 
 /* ============================================================================
  *  Instruction: VGE (Vector Select Greater Than or Equal)
+ *  TODO: Not tested, need to account for VCC/VCO/VCE logic.
  * ========================================================================= */
 void
-RSPVGE(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VGE.");
-  cp2->mulStageDest = 0;
+RSPVGE(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+
+  const uint16_t *vt = cp2->regs[iw >> 16 & 0x1F].slices;
+  const uint16_t *vs = cp2->regs[iw >> 11 & 0x1F].slices;
+  uint16_t *vd = cp2->regs[vdRegister].slices;
+
+#ifdef USE_SSE
+  __m128i vtVector = _mm_load_si128((__m128i*) vt);
+  __m128i vsVector = _mm_load_si128((__m128i*) vs);
+  __m128i greaterThanMask, equalToMask;
+  __m128i notSelectMask, selectMask;
+  __m128i vtComponents, vsComponents;
+  __m128i vdVector;
+
+  vtVector = SSEGetByteswappedVectorOperands(vtVector, element);
+  vsVector = SSESwapByteOrder(vsVector);
+
+  greaterThanMask = _mm_cmpgt_epi16(vsVector, vtVector);
+  equalToMask = _mm_cmpeq_epi16(vsVector, vtVector);
+  selectMask = _mm_or_si128(greaterThanMask, equalToMask);
+  notSelectMask = _mm_cmpeq_epi16(selectMask, _mm_setzero_si128()); 
+
+  vsComponents = _mm_and_si128(notSelectMask, vsVector);
+  vtComponents = _mm_and_si128(selectMask, vtVector);
+  vdVector = _mm_or_si128(vsComponents, vtComponents);
+
+  _mm_store_si128((__m128i*) vd, SSESwapByteOrder(vdVector));
+#else
+#error "Unimplemented function: RSPVGE (No SSE)."
+#endif
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================
@@ -460,11 +492,43 @@ RSPVINV(struct RSPCP2 *cp2, uint32_t unused(iw)) {
 
 /* ============================================================================
  *  Instruction: VLT (Vector Select Less Than)
+ *  TODO: Not tested, need to account for VCC/VCO/VCE logic.
  * ========================================================================= */
 void
-RSPVLT(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VLT.");
-  cp2->mulStageDest = 0;
+RSPVLT(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+
+  const uint16_t *vt = cp2->regs[iw >> 16 & 0x1F].slices;
+  const uint16_t *vs = cp2->regs[iw >> 11 & 0x1F].slices;
+  uint16_t *vd = cp2->regs[vdRegister].slices;
+
+#ifdef USE_SSE
+  __m128i vtVector = _mm_load_si128((__m128i*) vt);
+  __m128i vsVector = _mm_load_si128((__m128i*) vs);
+  __m128i greaterThanMask, equalToMask;
+  __m128i notSelectMask, selectMask;
+  __m128i vtComponents, vsComponents;
+  __m128i vdVector;
+
+  vtVector = SSEGetByteswappedVectorOperands(vtVector, element);
+  vsVector = SSESwapByteOrder(vsVector);
+
+  greaterThanMask = _mm_cmplt_epi16(vsVector, vtVector);
+  equalToMask = _mm_cmpeq_epi16(vsVector, vtVector);
+  selectMask = _mm_or_si128(greaterThanMask, equalToMask);
+  notSelectMask = _mm_cmpeq_epi16(selectMask, _mm_setzero_si128()); 
+
+  vsComponents = _mm_and_si128(notSelectMask, vsVector);
+  vtComponents = _mm_and_si128(selectMask, vtVector);
+  vdVector = _mm_or_si128(vsComponents, vtComponents);
+
+  _mm_store_si128((__m128i*) vd, SSESwapByteOrder(vdVector));
+#else
+#error "Unimplemented function: RSPVLT (No SSE)."
+#endif
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================

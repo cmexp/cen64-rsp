@@ -309,7 +309,7 @@ RSPJR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
   memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
-  *rdexLatch->pc = rs;
+  *rdexLatch->pc = rs & 0xFFF;
 }
 
 /* ============================================================================
@@ -1112,18 +1112,19 @@ RSPXORI(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPEXStage(struct RSP *rsp) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  const struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
   uint32_t rsRegister = GET_RS(rdexLatch->iw);
   uint32_t rtRegister = GET_RT(rdexLatch->iw);
   uint32_t rs, rt;
 
-  rs = (exdfLatch->result.dest != rsRegister)
+  rs = (dfwbLatch->result.dest != rsRegister)
     ? rsp->regs[rsRegister]
-    : exdfLatch->result.data;
+    : dfwbLatch->result.data;
 
-  rt = (exdfLatch->result.dest != rtRegister)
+  rt = (dfwbLatch->result.dest != rtRegister)
     ? rsp->regs[rtRegister]
-    : exdfLatch->result.data;
+    : dfwbLatch->result.data;
 
   exdfLatch->memoryData.function = NULL;
   RSPScalarFunctionTable[rdexLatch->opcode.id](rsp, rs, rt);

@@ -47,6 +47,7 @@ struct RSP {
   struct RSPCP2 cp2;
 
   struct RSPPipeline pipeline;
+  struct RDP *rdp;
 };
 
 struct RSP *CreateRSP(void);

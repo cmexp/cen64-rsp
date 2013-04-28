@@ -28,6 +28,14 @@ static void HandleDMAWrite(struct RSP *);
 static void HandleSPStatusWrite(struct RSP *, uint32_t);
 
 /* ============================================================================
+ *  ConnectRDPtoRSP: Connects an RDP instance to this RSP.
+ * ========================================================================= */
+void
+ConnectRDPtoRSP(struct RSP *rsp, struct RDP *rdp) {
+  rsp->rdp = rdp;
+}
+
+/* ============================================================================
  *  HandleDMARead: Invoked when SP_RD_LEN_REG is written.
  *
  *  SP_DRAM_ADDR_REG = RDRAM (source) address.
@@ -322,7 +330,24 @@ SPRegRead2(void *_rsp, uint32_t address, void *_data) {
 
   debugarg("SPRegRead: Reading from register [%s].", SPRegisterMnemonics[reg]);
 
-  *data = rsp->cp0.regs[reg];
+  switch(reg) {
+  case CMD_START:
+  case CMD_END:
+  case CMD_CURRENT:
+  case CMD_STATUS:
+  case CMD_CLOCK:
+  case CMD_BUSY:
+  case CMD_PIPE_BUSY:
+  case CMD_TMEM_BUSY:
+    DPRegRead(rsp->rdp, DP_REGS_BASE_ADDRESS +
+      4 * (((unsigned) reg) - CMD_START), data);
+    break;
+
+  default:
+    *data = rsp->cp0.regs[reg];
+    break;
+  }
+
   return 0;
 }
 
@@ -370,7 +395,9 @@ SPRegWrite(void *_rsp, uint32_t address, void *_data) {
   case CMD_BUSY:
   case CMD_PIPE_BUSY:
   case CMD_TMEM_BUSY:
-    WriteDPRegister((unsigned) reg, *data);
+    DPRegWrite(rsp->rdp, DP_REGS_BASE_ADDRESS +
+      4 * (((unsigned) reg) - CMD_START), data);
+    break;
 
   default:
     rsp->cp0.regs[reg] = *data;

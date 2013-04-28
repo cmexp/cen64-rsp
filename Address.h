@@ -11,6 +11,10 @@
 #ifndef __RSP__ADDRESS_H__
 #define __RSP__ADDRESS_H__
 
+/* DP Interface Registers. */
+#define DP_REGS_BASE_ADDRESS      0x04100000
+#define DP_REGS_ADDRESS_LEN       0x00000020
+
 /* RSP/DMEM. */
 #define RSP_DMEM_BASE_ADDRESS     0x04000000
 #define RSP_DMEM_ADDRESS_LEN      0x00001000
@@ -18,9 +22,6 @@
 /* RSP/IMEM. */
 #define RSP_IMEM_BASE_ADDRESS     0x04001000
 #define RSP_IMEM_ADDRESS_LEN      0x00001000
-
-/* Serial Interface Registers. */
-#define SI_REGS_BASE_ADDRESS      0x04800000
 
 /* SP Interface Registers. */
 #define SP_REGS_BASE_ADDRESS      0x04040000

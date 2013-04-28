@@ -19,6 +19,7 @@
 #endif
 
 struct BusController;
+struct RDP;
 
 uint32_t BusReadWord(struct BusController *, uint32_t);
 void BusWriteWord(const struct BusController *, uint32_t, uint32_t);
@@ -29,7 +30,8 @@ void DMAToDRAM(struct BusController *, uint32_t, const void *, size_t);
 void BusClearRCPInterrupt(struct BusController *, unsigned);
 void BusRaiseRCPInterrupt(struct BusController *, unsigned);
 
-void WriteDPRegister(unsigned reg, uint32_t value);
+int DPRegRead(void *, uint32_t, void *);
+int DPRegWrite(void *, uint32_t, void *);
 
 #endif
 

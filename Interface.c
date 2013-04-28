@@ -12,6 +12,7 @@
 #include "Common.h"
 #include "CPU.h"
 #include "Definitions.h"
+#include "Externs.h"
 #include "Interface.h"
 
 #ifdef __cplusplus
@@ -360,6 +361,16 @@ SPRegWrite(void *_rsp, uint32_t address, void *_data) {
   case SP_STATUS_REG:
     HandleSPStatusWrite(rsp, *data);
     break;
+
+  case CMD_START:
+  case CMD_END:
+  case CMD_CURRENT:
+  case CMD_STATUS:
+  case CMD_CLOCK:
+  case CMD_BUSY:
+  case CMD_PIPE_BUSY:
+  case CMD_TMEM_BUSY:
+    WriteDPRegister((unsigned) reg, *data);
 
   default:
     rsp->cp0.regs[reg] = *data;

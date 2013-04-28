@@ -10,6 +10,8 @@
  * ========================================================================= */
 #ifndef __RSP__EXTERNS_H__
 #define __RSP__EXTERNS_H__
+#include "Common.h"
+
 #ifdef __cplusplus
 #include <cstddef>
 #else
@@ -26,6 +28,8 @@ void DMAToDRAM(struct BusController *, uint32_t, const void *, size_t);
 
 void BusClearRCPInterrupt(struct BusController *, unsigned);
 void BusRaiseRCPInterrupt(struct BusController *, unsigned);
+
+void WriteDPRegister(unsigned reg, uint32_t value);
 
 #endif
 

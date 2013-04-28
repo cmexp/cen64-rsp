@@ -87,15 +87,11 @@ RSPANDI(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBEQ(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   *rdexLatch->pc = (rs == rt)
     ? *rdexLatch->pc - 4 + imm
     : *rdexLatch->pc;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
@@ -104,15 +100,11 @@ RSPBEQ(struct RSP *rsp, uint32_t rs, uint32_t rt) {
 void
 RSPBGEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   *rdexLatch->pc = ((int32_t) rs >= 0)
     ? *rdexLatch->pc - 4 + imm
     : *rdexLatch->pc;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
@@ -122,7 +114,6 @@ void
 RSPBGEZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   exdfLatch->result.data = *rdexLatch->pc;
@@ -139,14 +130,10 @@ RSPBGEZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBGTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   *rdexLatch->pc = ((int32_t) rs > 0)
     ? imm + *rdexLatch->pc - 4: *rdexLatch->pc;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
@@ -155,14 +142,10 @@ RSPBGTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBLEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   *rdexLatch->pc = ((int32_t) rs <= 0)
     ? imm + *rdexLatch->pc - 4: *rdexLatch->pc;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
@@ -171,15 +154,11 @@ RSPBLEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBLTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   *rdexLatch->pc = ((int32_t) rs < 0)
     ? *rdexLatch->pc - 4 + imm
     : *rdexLatch->pc;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
@@ -206,15 +185,11 @@ RSPBLTZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBNE(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   *rdexLatch->pc = (rs != rt)
     ? imm + *rdexLatch->pc - 4
     : *rdexLatch->pc;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
@@ -222,33 +197,24 @@ RSPBNE(struct RSP *rsp, uint32_t rs, uint32_t rt) {
  * ========================================================================= */
 void
 RSPBREAK(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
   rsp->cp0.regs[SP_STATUS_REG] |= (SP_STATUS_HALT | SP_STATUS_BROKE);
 
   if (rsp->cp0.regs[SP_STATUS_REG] & SP_STATUS_INTR_BREAK)
     BusRaiseRCPInterrupt(rsp->bus, MI_INTR_SP);
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
  *  Instruction: CFC2 (Move Control From Coprocessor 2 (VU))
  * ========================================================================= */
 void
-RSPCFC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+RSPCFC2(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
   debug("Unimplemented function: CFC2.");
 }
 /* ============================================================================
  *  Instruction: CTC2 (Move Control To Coprocessor 2 (VU))
  * ========================================================================= */
 void
-RSPCTC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+RSPCTC2(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
   debug("Unimplemented function: CTC2.");
 }
 
@@ -256,10 +222,7 @@ RSPCTC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
  *  Instruction: INV (Invalid Operation)
  * ========================================================================= */
 void
-RSPINV(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+RSPINV(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
 }
 
 /* ============================================================================
@@ -268,9 +231,7 @@ RSPINV(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
 void
 RSPJ(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
   *rdexLatch->pc = (rdexLatch->iw & 0x3FF) << 2;
 }
 
@@ -306,9 +267,7 @@ RSPJALR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPJR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
   *rdexLatch->pc = rs & 0xFFF;
 }
 
@@ -538,10 +497,7 @@ RSPLSV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
  *  Instruction: LTV (Load Transpose into Vector Register)
  * ========================================================================= */
 void
-RSPLTV(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+RSPLTV(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
   debug("Unimplemented function: LTV.");
 }
 
@@ -597,10 +553,7 @@ RSPLW(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
  *  Instruction: MFC2 (Move From Coprocessor 2 (VU))
  * ========================================================================= */
 void
-RSPMFC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+RSPMFC2(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
   debug("Unimplemented function: MFC2.");
 }
 
@@ -608,10 +561,7 @@ RSPMFC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
  *  Instruction: MTC2 (Move To Coprocessor 2 (VU))
  * ========================================================================= */
 void
-RSPMTC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+RSPMTC2(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
   debug("Unimplemented function: MTC2.");
 }
 
@@ -619,10 +569,7 @@ RSPMTC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
  *  Instruction: NOP (No Operation)
  * ========================================================================= */
 void
-RSPNOP(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+RSPNOP(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
 }
 
 /* ============================================================================
@@ -681,8 +628,6 @@ RSPSB(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   exdfLatch->memoryData.data = rt;
   exdfLatch->memoryData.function = &StoreByte;
   exdfLatch->memoryData.offset = rs + offset;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
@@ -752,8 +697,6 @@ RSPSH(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   exdfLatch->memoryData.data = rt;
   exdfLatch->memoryData.function = &StoreHalf;
   exdfLatch->memoryData.offset = rs + offset;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
@@ -1012,10 +955,7 @@ RSPSSV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
  *  Instruction: STV (Store Transpose into Vector Register)
  * ========================================================================= */
 void
-RSPSTV(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+RSPSTV(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
   debug("Unimplemented function: STV.");
 }
 
@@ -1063,18 +1003,13 @@ RSPSW(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   exdfLatch->memoryData.data = rt;
   exdfLatch->memoryData.function = &StoreWord;
   exdfLatch->memoryData.offset = rs + offset;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
 }
 
 /* ============================================================================
  *  Instruction: SWV (Store Wrapped from Vector Register)
  * ========================================================================= */
 void
-RSPSWV(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+RSPSWV(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
   debug("Unimplemented function: SWV.");
 }
 
@@ -1118,6 +1053,10 @@ RSPEXStage(struct RSP *rsp) {
   uint32_t rtRegister = GET_RT(rdexLatch->iw);
   uint32_t rs, rt;
 
+  /* Always invalidate outputs for safety. */
+  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+
+  /* Forward results and invoke the appropriate function. */
   rs = (dfwbLatch->result.dest != rsRegister)
     ? rsp->regs[rsRegister]
     : dfwbLatch->result.data;
@@ -1126,7 +1065,6 @@ RSPEXStage(struct RSP *rsp) {
     ? rsp->regs[rtRegister]
     : dfwbLatch->result.data;
 
-  exdfLatch->memoryData.function = NULL;
   RSPScalarFunctionTable[rdexLatch->opcode.id](rsp, rs, rt);
 }
 

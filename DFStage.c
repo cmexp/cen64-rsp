@@ -37,6 +37,7 @@ RSPDFStage(struct RSPEXDFLatch *exdfLatch, struct RSPDFWBLatch *dfwbLatch,
       : (void*) (&exdfLatch->result.data);
 
     function(&exdfLatch->memoryData, dmem);
+    exdfLatch->memoryData.function = NULL;
   }
 
   dfwbLatch->result = exdfLatch->result;

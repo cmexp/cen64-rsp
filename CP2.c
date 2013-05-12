@@ -242,7 +242,7 @@ RSPVABS(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) vd, SSESwapByteOrder(vdVector));
   _mm_store_si128((__m128i*) acc, vdVector);
 #else
-#error "Unimplemented function: RSPVABS (No SSE)."
+#warning "Unimplemented function: RSPVABS (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -291,7 +291,7 @@ RSPVADD(struct RSPCP2 *cp2, uint32_t iw) {
 
   _mm_store_si128((__m128i*) vd, SSESwapByteOrder(vdVector));
 #else
-#error "Unimplemented function: RSPVADD (No SSE)."
+#warning "Unimplemented function: RSPVADD (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -339,7 +339,7 @@ RSPVADDC(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) acc, vdVector);
   _mm_store_si128((__m128i*) vco, carryOut);
 #else
-#error "Unimplemented function: RSPVADDC (No SSE)."
+#warning "Unimplemented function: RSPVADDC (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -369,7 +369,7 @@ RSPVAND(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) vd, vdVector);
   _mm_store_si128((__m128i*) acc, vdVector);
 #else
-#error "Unimplemented function: RSPVAND (No SSE)."
+#warning "Unimplemented function: RSPVAND (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -408,7 +408,7 @@ RSPVEQ(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) vd, SSESwapByteOrder(vdVector));
   _mm_store_si128((__m128i*) acc, vdVector);
 #else
-#error "Unimplemented function: RSPVEQ (No SSE)."
+#warning "Unimplemented function: RSPVEQ (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -476,7 +476,7 @@ RSPVGE(struct RSPCP2 *cp2, uint32_t iw) {
 
   _mm_store_si128((__m128i*) vd, SSESwapByteOrder(vdVector));
 #else
-#error "Unimplemented function: RSPVGE (No SSE)."
+#warning "Unimplemented function: RSPVGE (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -525,7 +525,7 @@ RSPVLT(struct RSPCP2 *cp2, uint32_t iw) {
 
   _mm_store_si128((__m128i*) vd, SSESwapByteOrder(vdVector));
 #else
-#error "Unimplemented function: RSPVLT (No SSE)."
+#warning "Unimplemented function: RSPVLT (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -581,7 +581,7 @@ RSPVMACF(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) accMid, accumulatorLo);
   _mm_store_si128((__m128i*) accHi, accumulatorHi);
 #else
-#error "Unimplemented function: RSPVMACF (No SSE)."
+#warning "Unimplemented function: RSPVMACF (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -649,7 +649,7 @@ RSPVMADH(struct RSPCP2 *cp2, uint32_t iw) {
   accumulator = _mm_packs_epi32(unpackedLo, unpackedHi);
   _mm_store_si128((__m128i*) vd, SSESwapByteOrder(accumulator));
 #else
-#error "Unimplemented function: RSPVMADH (No SSE)."
+#warning "Unimplemented function: RSPVMADH (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -711,7 +711,7 @@ RSPVMADL(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) accMid, accumulatorLo);
   _mm_store_si128((__m128i*) accHigh, accumulatorHi);
 #else
-#error "Unimplemented function: RSPVMADL (No SSE)."
+#warning "Unimplemented function: RSPVMADL (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -763,7 +763,7 @@ RSPVMADM(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) accHigh, accumulatorHi);
   _mm_store_si128((__m128i*) accMid, accumulatorLo);
 #else
-#error "Unimplemented function: RSPVMADM (No SSE)."
+#warning "Unimplemented function: RSPVMADM (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -815,7 +815,7 @@ RSPVMADN(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) accHigh, accumulatorHi);
   _mm_store_si128((__m128i*) accMid, accumulatorLo);
 #else
-#error "Unimplemented function: RSPVMADN (No SSE)."
+#warning "Unimplemented function: RSPVMADN (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -853,7 +853,7 @@ RSPVMRG(struct RSPCP2 *cp2, uint32_t iw) {
   __m128i vdVector = _mm_blendv_epi8(vtVector, vsVector, vccMask);
   _mm_store_si128((__m128i*) vd, vdVector);
 #else
-#error "Unimplemented function: RSPVMRG (No SSE)."
+#warning "Unimplemented function: RSPVMRG (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -899,7 +899,7 @@ RSPVMUDH(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) accHigh, accumulatorHi);
   _mm_store_si128((__m128i*) accMid, accumulatorLo);
 #else
-#error "Unimplemented function: RSPVMUDH (No SSE)."
+#warning "Unimplemented function: RSPVMUDH (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -944,7 +944,7 @@ RSPVMUDL(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) accMid, _mm_setzero_si128());
   _mm_store_si128((__m128i*) accLow, vdVector);
 #else
-#error "Unimplemented function: RSPVMUDL (No SSE)."
+#warning "Unimplemented function: RSPVMUDL (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -994,7 +994,7 @@ RSPVMUDM(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) accMid, accumulatorLo);
   _mm_store_si128((__m128i*) accLow, accumulator);
 #else
-#error "Unimplemented function: RSPVMUDM (No SSE)."
+#warning "Unimplemented function: RSPVMUDM (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -1044,7 +1044,7 @@ RSPVMUDN(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) accMid, accumulatorLo);
   _mm_store_si128((__m128i*) accLow, accumulator);
 #else
-#error "Unimplemented function: RSPVMUDN (No SSE)."
+#warning "Unimplemented function: RSPVMUDN (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -1101,7 +1101,7 @@ RSPVNAND(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) acc, vdVector);
   _mm_store_si128((__m128i*) vd, vdVector);
 #else
-#error "Unimplemented function: RSPVNAND (No SSE)."
+#warning "Unimplemented function: RSPVNAND (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -1148,7 +1148,7 @@ RSPVNOR(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) acc, vdVector);
   _mm_store_si128((__m128i*) vd, vdVector);
 #else
-#error "Unimplemented function: RSPVNOR (No SSE)."
+#warning "Unimplemented function: RSPVNOR (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -1177,7 +1177,7 @@ RSPVOR(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) acc, vdVector);
   _mm_store_si128((__m128i*) vd, vdVector);
 #else
-#error "Unimplemented function: RSPVOR (No SSE)."
+#warning "Unimplemented function: RSPVOR (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -1207,7 +1207,7 @@ RSPVNXOR(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) acc, vdVector);
   _mm_store_si128((__m128i*) vd, vdVector);
 #else
-#error "Unimplemented function: RSPVNXOR (No SSE)."
+#warning "Unimplemented function: RSPVNXOR (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -1337,7 +1337,7 @@ RSPVSUB(struct RSPCP2 *cp2, uint32_t iw) {
 
   _mm_store_si128((__m128i*) vd, SSESwapByteOrder(vdVector));
 #else
-#error "Unimplemented function: RSPVSUB (No SSE)."
+#warning "Unimplemented function: RSPVSUB (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -1376,7 +1376,7 @@ RSPVXOR(struct RSPCP2 *cp2, uint32_t iw) {
   _mm_store_si128((__m128i*) acc, vdVector);
   _mm_store_si128((__m128i*) vd, vdVector);
 #else
-#error "Unimplemented function: RSPVXOR (No SSE)."
+#warning "Unimplemented function: RSPVXOR (No SSE)."
 #endif
 
   cp2->mulStageDest = vdRegister;
@@ -1418,7 +1418,7 @@ RSPCP2GetAccumulator(const struct RSPCP2 *cp2, unsigned reg, uint16_t *acc) {
   acc[1] = cp2->accumulatorMid.slices[reg];
   acc[2] = cp2->accumulatorHigh.slices[reg];
 #else
-#error "Unimplemented function: RSPCP2GetAccumulator (No SSE)."
+#warning "Unimplemented function: RSPCP2GetAccumulator (No SSE)."
 #endif
 }
 #endif

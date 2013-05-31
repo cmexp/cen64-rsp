@@ -233,6 +233,7 @@ RSPJ(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
 
   *rdexLatch->pc = (rdexLatch->iw & 0x3FF) << 2;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -246,6 +247,7 @@ RSPJAL(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
   exdfLatch->result.data = *rdexLatch->pc;
   exdfLatch->result.dest = RSP_LINK_REGISTER;
   *rdexLatch->pc = (rdexLatch->iw & 0x3FF) << 2;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -259,6 +261,7 @@ RSPJALR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   exdfLatch->result.data = *rdexLatch->pc;
   exdfLatch->result.dest = RSP_LINK_REGISTER;
   *rdexLatch->pc = rs;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -269,6 +272,7 @@ RSPJR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
 
   *rdexLatch->pc = rs & 0xFFF;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================

@@ -423,6 +423,7 @@ SPRegWrite2(void *_rsp, uint32_t address, void *_data) {
   if (reg == SP_PC_REG) {
     RSPInitPipeline(&rsp->pipeline); /* Hack? */
     rsp->pipeline.ifrdLatch.pc = *data & 0xFFF;
+    rsp->pipeline.ifrdLatch.pc |= 0x1000;
   }
 
   rsp->cp0.regs[reg] = *data;

@@ -37,18 +37,16 @@ FetchInstructions(const uint8_t *source, uint32_t *iw1, uint32_t *iw2) {
  *  TODO: This is a massive hack as-is... fix it/the decoder.
  * ========================================================================= */
 void
-RSPIFStage(struct RSPIFRDLatch *ifrdLatch, const uint8_t imem[]) {
+RSPIFStage(struct RSPIFRDLatch *ifrdLatch, const uint8_t mem[]) {
   uint32_t *firstIW = &ifrdLatch->firstIW;
   uint32_t *secondIW = &ifrdLatch->secondIW;
   uint32_t pc = ifrdLatch->pc;
-
-  assert(pc <= (RSP_IMEM_SIZE - 4) && "Attempt to fetch beyond IMEM range.");
 
   /* Save the PC of the fetched instructions. */
   ifrdLatch->fetchedPC = pc;
 
   /* Fetch a pair of instructions, bump the PC. */
-  FetchInstructions(imem + ifrdLatch->pc, firstIW, secondIW);
-  ifrdLatch->pc = (pc + 4) & 0xFFF;
+  FetchInstructions(mem + ifrdLatch->pc, firstIW, secondIW);
+  ifrdLatch->pc = ((pc + 4) & 0xFFF) | 0x1000;
 }
 

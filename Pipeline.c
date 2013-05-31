@@ -112,7 +112,7 @@ CycleRSP(struct RSP *rsp) {
 
   /* Fetch if there were no stalls. */
   if (!ldStoreStall && !ldUseStall)
-    RSPIFStage(ifrdLatch, rsp->imem);
+    RSPIFStage(ifrdLatch, rsp->dmem);
   else {
     ifrdLatch->firstIW = 0;
     ifrdLatch->secondIW = 0;
@@ -128,5 +128,6 @@ RSPInitPipeline(struct RSPPipeline *pipeline) {
   pipeline->rdexLatch.pc = &pipeline->ifrdLatch.pc;
   RSPInvalidateOpcode(&pipeline->rdexLatch.opcode);
   RSPInvalidateOpcode(&pipeline->exdfLatch.opcode);
+  pipeline->ifrdLatch.pc = 0x1000;
 }
 

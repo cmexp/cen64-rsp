@@ -310,9 +310,25 @@ SPRegRead(void *_rsp, uint32_t address, void *_data) {
 
   debugarg("SPRegRead: Reading from register [%s].", SPRegisterMnemonics[reg]);
 
-  *data = rsp->cp0.regs[reg];
-  if (reg == SP_SEMAPHORE_REG)
-    rsp->cp0.regs[SP_SEMAPHORE_REG] = 1;
+  switch(reg) {
+  case CMD_START:
+  case CMD_END:
+  case CMD_CURRENT:
+  case CMD_STATUS:
+  case CMD_CLOCK:
+  case CMD_BUSY:
+  case CMD_PIPE_BUSY:
+  case CMD_TMEM_BUSY:
+    DPRegRead(rsp->rdp, DP_REGS_BASE_ADDRESS +
+      4 * (((unsigned) reg) - CMD_START), data);
+    break;
+
+  default:
+    *data = rsp->cp0.regs[reg];
+    if (reg == SP_SEMAPHORE_REG)
+      rsp->cp0.regs[SP_SEMAPHORE_REG] = 1;
+    break;
+  }
 
   return 0;
 }
@@ -330,24 +346,7 @@ SPRegRead2(void *_rsp, uint32_t address, void *_data) {
 
   debugarg("SPRegRead: Reading from register [%s].", SPRegisterMnemonics[reg]);
 
-  switch(reg) {
-  case CMD_START:
-  case CMD_END:
-  case CMD_CURRENT:
-  case CMD_STATUS:
-  case CMD_CLOCK:
-  case CMD_BUSY:
-  case CMD_PIPE_BUSY:
-  case CMD_TMEM_BUSY:
-    DPRegRead(rsp->rdp, DP_REGS_BASE_ADDRESS +
-      4 * (((unsigned) reg) - CMD_START), data);
-    break;
-
-  default:
-    *data = rsp->cp0.regs[reg];
-    break;
-  }
-
+  *data = rsp->cp0.regs[reg];
   return 0;
 }
 

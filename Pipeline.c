@@ -113,6 +113,10 @@ CycleRSP(struct RSP *rsp) {
   /* Fetch if there were no stalls. */
   if (!ldStoreStall && !ldUseStall)
     RSPIFStage(ifrdLatch, rsp->imem);
+  else {
+    ifrdLatch->firstIW = 0;
+    ifrdLatch->secondIW = 0;
+  }
 }
 
 /* ============================================================================

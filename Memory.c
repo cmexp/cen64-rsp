@@ -54,7 +54,7 @@ PackedHalfLoadVector(const uint16_t* src, uint16_t *dest) {
   _mm_store_si128((__m128i*) dest, temp);
 
 #else
-#error "Unimplemented function: PackedHalfLoadVector (No SSE)."
+#warning "Unimplemented function: PackedHalfLoadVector (No SSE)."
 #endif
 }
 
@@ -79,7 +79,7 @@ PackedFourthLoadVector(const uint16_t* src, uint16_t *dest) {
   _mm_storel_epi64((__m128i*) dest, temp);
 
 #else
-#error "Unimplemented function: PackedFourthLoadVector (No SSE)."
+#warning "Unimplemented function: PackedFourthLoadVector (No SSE)."
 #endif
 }
 
@@ -104,7 +104,7 @@ PackedLoadVector(const uint16_t* src, uint16_t *dest) {
   _mm_store_si128((__m128i*) dest, temp);
 
 #else
-#error "Unimplemented function: PackedLoadVector (No SSE)."
+#warning "Unimplemented function: PackedLoadVector (No SSE)."
 #endif
 }
 
@@ -127,7 +127,7 @@ PackedByteLoadVector(const uint16_t* src, uint16_t *dest) {
   _mm_store_si128((__m128i*) dest, temp);
 
 #else
-#error "Unimplemented function: PackedByteLoadVector (No SSE)."
+#warning "Unimplemented function: PackedByteLoadVector (No SSE)."
 #endif
 }
 
@@ -152,7 +152,7 @@ PackedFourthStoreVector(const uint16_t* src, uint16_t *dest) {
   _mm_storeu_si128((__m128i*) dest, temp);
 
 #else
-#error "Unimplemented function: PackedFourthStoreVector (No SSE)."
+#warning "Unimplemented function: PackedFourthStoreVector (No SSE)."
 #endif
 }
 
@@ -177,7 +177,7 @@ PackedHalfStoreVector(const uint16_t* src, uint16_t *dest) {
   _mm_storeu_si128((__m128i*) dest, temp);
 
 #else
-#error "Unimplemented function: PackedHalfStoreVector (No SSE)."
+#warning "Unimplemented function: PackedHalfStoreVector (No SSE)."
 #endif
 }
 
@@ -202,7 +202,7 @@ PackedStoreVector(const uint16_t* src, uint16_t *dest) {
   _mm_storel_epi64((__m128i*) dest, temp);
 
 #else
-#error "Unimplemented function: PackedStoreVector (No SSE)."
+#warning "Unimplemented function: PackedStoreVector (No SSE)."
 #endif
 }
 
@@ -225,7 +225,7 @@ PackedByteStoreVector(const uint16_t* src, uint16_t *dest) {
   _mm_storel_epi64((__m128i*) dest, temp);
 
 #else
-#error "Unimplemented function: PackedByteStoreVector (No SSE)."
+#warning "Unimplemented function: PackedByteStoreVector (No SSE)."
 #endif
 }
 

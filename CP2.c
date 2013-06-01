@@ -825,9 +825,19 @@ RSPVMADN(struct RSPCP2 *cp2, uint32_t iw) {
  *  Instruction: VMOV (Vector Element Scalar Move)
  * ========================================================================= */
 void
-RSPVMOV(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VMOV.");
-  cp2->mulStageDest = 0;
+RSPVMOV(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vtRegister = iw >> 16 & 0x1F;
+  unsigned vdRegister = iw >> 6 & 0x1F;
+
+  const uint16_t *vt = cp2->regs[vtRegister].slices;
+  uint16_t *vd = cp2->regs[vdRegister].slices;
+  unsigned de = iw >> 11 & 0x7;
+  unsigned e = iw >> 21 & 0x7;
+
+  memcpy(cp2->accumulatorLow.slices, vt, sizeof(__m128i));
+  vd[de] = vt[e];
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================

@@ -1357,9 +1357,42 @@ RSPVSUB(struct RSPCP2 *cp2, uint32_t iw) {
  *  Instruction: VSUBC (Vector Subtraction of Short Elements with Carry)
  * ========================================================================= */
 void
-RSPVSUBC(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VSUBC.");
-  cp2->mulStageDest = 0;
+RSPVSUBC(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+
+  const uint16_t *vt = cp2->regs[iw >> 16 & 0x1F].slices;
+  const uint16_t *vs = cp2->regs[iw >> 11 & 0x1F].slices;
+  const uint16_t *vco = cp2->carryOut.slices;
+  uint16_t *vd = cp2->regs[vdRegister].slices;
+  uint16_t *acc = cp2->accumulatorLow.slices;
+
+#ifdef USE_SSE
+  __m128i vtVector = _mm_load_si128((__m128i*) vt);
+  __m128i vsVector = _mm_load_si128((__m128i*) vs);
+  __m128i vdVector, carryOut, notEqual, borrowIn;
+
+  vtVector = SSEGetByteswappedVectorOperands(vtVector, element);
+  vsVector = SSESwapByteOrder(vsVector);
+  vdVector = _mm_sub_epi16(vsVector, vtVector);
+
+  /* We need to set the not equal and borrow-in bits within VCO. */
+  /* vs<vt => 0x0101 << i, vs>vt => 0x0100 << i, vs=vt => 0x0000 << i */
+  notEqual = _mm_cmpeq_epi16(vtVector, vsVector);
+  notEqual = _mm_cmpeq_epi16(notEqual, _mm_setzero_si128());
+  borrowIn = _mm_cmplt_epi16(vsVector, vtVector);
+  notEqual = _mm_packs_epi16(notEqual, _mm_setzero_si128());
+  borrowIn = _mm_packs_epi16(borrowIn, _mm_setzero_si128());
+  carryOut = _mm_or_si128(_mm_slli_si128(notEqual, 8), borrowIn);
+
+  _mm_store_si128((__m128i*) vd, SSESwapByteOrder(vdVector));
+  _mm_store_si128((__m128i*) acc, vdVector);
+  _mm_store_si128((__m128i*) vco, carryOut);
+#else
+#warning "Unimplemented function: RSPVSUBC (No SSE)."
+#endif
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================
@@ -1429,6 +1462,22 @@ RSPCP2GetAccumulator(const struct RSPCP2 *cp2, unsigned reg, uint16_t *acc) {
   acc[2] = cp2->accumulatorHigh.slices[reg];
 #else
 #warning "Unimplemented function: RSPCP2GetAccumulator (No SSE)."
+#endif
+}
+#endif
+
+/* ============================================================================
+ *  RSPCP2GetCarryOut: Fetches the carry-out and returns it.
+ * ========================================================================= */
+#ifndef NDEBUG
+uint16_t
+RSPCP2GetCarryOut(const struct RSPCP2 *cp2) {
+#ifdef USE_SSE
+  __m128i carryOut = _mm_load_si128((__m128i*) cp2->carryOut.slices);
+  return _mm_movemask_epi8(carryOut);
+#else
+#warning "Unimplemented function: RSPCP2GetCarryOut (No SSE)."
+  return 0;
 #endif
 }
 #endif

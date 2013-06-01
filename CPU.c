@@ -139,6 +139,8 @@ RSPDumpRegisters(const struct RSP *rsp) {
   putc('\n', stdout);
   debug ("Vector registers:                       [RSP]: Accumulators:");
 
+  debugarg("VCO: 0x%.4X", RSPCP2GetCarryOut(&rsp->cp2));
+
   for (i = 0; i < 8; i++) {
     uint16_t acc[3];
 

@@ -61,6 +61,7 @@ struct RSPCP2 {
 
 #ifndef NDEBUG
 void RSPCP2GetAccumulator(const struct RSPCP2 *, unsigned , uint16_t *);
+uint16_t RSPCP2GetCarryOut(const struct RSPCP2 *);
 #endif
 
 void RSPCycleCP2(struct RSPCP2 *);

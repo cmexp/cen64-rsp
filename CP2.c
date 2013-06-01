@@ -16,6 +16,7 @@
 #include "CP2.h"
 #include "Decoder.h"
 #include "Opcodes.h"
+#include "ReciprocalROM.h"
 
 #ifdef __cplusplus
 #include <cstring>
@@ -1236,18 +1237,116 @@ RSPVRCP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VRCPH (Vector Element Scalar Reciprocal (Double Prec. High))
  * ========================================================================= */
 void
-RSPVRCPH(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VRCPH.");
-  cp2->mulStageDest = 0;
+RSPVRCPH(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned delement = iw >> 11 & 0x7;
+  unsigned element = iw >> 21 & 0xF;
+
+  const uint16_t *vt = cp2->regs[iw >> 16 & 0x1F].slices;
+  uint16_t *vd = cp2->regs[vdRegister].slices;
+  uint16_t *acc = cp2->accumulatorLow.slices;
+#ifdef USE_SSE
+  __m128i vtVector = _mm_load_si128((__m128i*) vt);
+  vtVector = SSEGetVectorOperands(vtVector, element);
+#endif
+
+  cp2->reciprocalIn = (uint32_t) vt[element] << 16;
+  cp2->shouldUseDoublePrecision = 1;
+
+#ifdef USE_SSE
+  _mm_store_si128((__m128i*) acc, vtVector);
+#else
+#warning "Unimplemented function: RSPVRCPL (No SSE)."
+#endif
+
+  vd[delement] = cp2->reciprocalResult >> 16;
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================
  *  Instruction: VRCPL (Vector Element Scalar Reciprocal (Double Prec. Low))
  * ========================================================================= */
 void
-RSPVRCPL(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VRCPL.");
-  cp2->mulStageDest = 0;
+RSPVRCPL(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned delement = iw >> 11 & 0x7;
+  unsigned element = iw >> 21 & 0xF;
+
+  const uint16_t *vt = cp2->regs[iw >> 16 & 0x1F].slices;
+  uint16_t *vd = cp2->regs[vdRegister].slices;
+  uint16_t *acc = cp2->accumulatorLow.slices;
+
+  uint32_t input, data, result;
+  unsigned index, shift = 0;
+  int32_t divIn;
+
+#ifdef USE_SSE
+  __m128i vtVector = _mm_load_si128((__m128i*) vt);
+  vtVector = SSEGetVectorOperands(vtVector, element);
+#endif
+
+  /* Take the absolute value of component. */
+  /* We'll restore the sign when done. */
+  if (cp2->shouldUseDoublePrecision) {
+    divIn = cp2->reciprocalIn | vt[element];
+    input = divIn;
+
+    if (divIn < 0) {
+      input = (divIn >= -32768)
+        ? -input
+        : ~input;
+    }
+  }
+
+  else {
+    divIn = (int16_t) vt[element];
+    input = divIn;
+
+    if (divIn < 0)
+      input = -input;
+  }
+
+  /* Get the amount to shift by. */
+  if (input) {
+    unsigned i;
+
+    for (i = 0; i < 32; i++) {
+      if (input & (1<<(31 - i))) {
+        shift = i;
+        break;
+      }
+    }
+  }
+
+  else
+    shift = (cp2->shouldUseDoublePrecision) ? 0x00 : 0x10;
+
+  /* Compute the result. */
+  index = ((input << shift) & 0x7FC00000) >> 22;
+  data = ReciprocalLUT[index];
+  result = (0x40000000 | (data << 14)) >> ((~shift) & 0x1F);
+
+  /* Restore the sign. */
+  if (divIn < 0)
+    result = ~result;
+
+  /* Handle corner cases. */
+  if (divIn == 0)
+    result = 0x7FFFFFFF;
+  else if ((uint32_t) divIn == 0xFFFF8000U)
+    result = 0xFFFF0000;
+
+  cp2->shouldUseDoublePrecision = 0;
+  cp2->reciprocalResult = result;
+  vd[delement] = result;
+
+#ifdef USE_SSE
+  _mm_store_si128((__m128i*) acc, vtVector);
+#else
+#warning "Unimplemented function: RSPVRCPL (No SSE)."
+#endif
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================

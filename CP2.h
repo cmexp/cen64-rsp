@@ -54,6 +54,11 @@ struct RSPCP2 {
   struct RSPVOpcode opcode;
   uint32_t iw;
 
+  /* Recripocal data. */
+  uint32_t reciprocalIn;
+  uint32_t reciprocalResult;
+  bool shouldUseDoublePrecision;
+
 #ifndef NDEBUG
   unsigned long long counts[NUM_RSP_VECTOR_OPCODES];
 #endif

@@ -6,14 +6,25 @@
 struct BusController;
 
 /* Stub functions. */
-uint32_t BusReadWord(struct BusController *bus, uint32_t address) { return 0; }
-void BusWriteWord(const struct BusController *bus, uint32_t address, uint32_t size) {}
+uint32_t BusReadWord(struct BusController *unused(bus),
+  uint32_t unused(address)) { return 0; }
+void BusWriteWord(const struct BusController *unused(bus),
+  uint32_t unused(address), uint32_t unused(size)) {}
 
-void DMAFromDRAM(struct BusController *bus, void *dest, uint32_t src, uint32_t size) {}
-void DMAToDRAM(struct BusController *bus, uint32_t dest, const void *src, size_t size) {}
+void DMAFromDRAM(struct BusController *unused(bus), void *unused(dest),
+  uint32_t unused(src), uint32_t unused(size)) {}
+void DMAToDRAM(struct BusController *unused(bus), uint32_t unused(dest),
+  const void *unused(src), size_t unused(size)) {}
 
-void BusClearRCPInterrupt(struct BusController *bus, unsigned i) {}
-void BusRaiseRCPInterrupt(struct BusController *bus, unsigned i) {}
+void BusClearRCPInterrupt(struct BusController *unused(bus),
+  unsigned unused(i)) {}
+void BusRaiseRCPInterrupt(struct BusController *unused(bus),
+  unsigned unused(i)) {}
+
+int DPRegRead(void *unused(rdp), uint32_t unused(address),
+  void *unused(data)) { return 0; }
+int DPRegWrite(void *unused(rdp), uint32_t unused(address),
+  void *unused(data)) { return 0; }
 
 /* Entry point. */
 int main(int argc, const char *argv[]) {
@@ -28,7 +39,7 @@ int main(int argc, const char *argv[]) {
 	}
 
 	/* Open the uCode file, create an RSP instance. */
-	if ((rspUCodeFile = fopen(argv[1], "r")) == NULL) {
+	if ((rspUCodeFile = fopen(argv[1], "rb")) == NULL) {
 		printf("Failed to open RSP uCode.\n");
 
 		return 1;
@@ -42,8 +53,21 @@ int main(int argc, const char *argv[]) {
 	}
 
 	/* Read the uCode into the RSP. */
-	for (size = 0, total = 0; total < 8192; total += size) {
-		size = fread(rsp->dmem + total, 1, 8192 - total, rspUCodeFile);
+	for (size = 0, total = 0; total < 4096; total += size) {
+		size = fread(rsp->imem + total, 1, 4096 - total, rspUCodeFile);
+
+		if (ferror(rspUCodeFile)) {
+			printf("Unable to read the uCode file.\n");
+
+			fclose(rspUCodeFile);
+			DestroyRSP(rsp);
+			return 3;
+		}
+	}
+
+	/* Read the uCode into the RSP. */
+	for (size = 0, total = 0; total < 4096; total += size) {
+		size = fread(rsp->dmem + total, 1, 4096 - total, rspUCodeFile);
 
 		if (ferror(rspUCodeFile)) {
 			printf("Unable to read the uCode file.\n");
@@ -56,7 +80,9 @@ int main(int argc, const char *argv[]) {
 
 	fclose(rspUCodeFile);
 	cycles = strtol(argv[2], NULL, 10);
+
 	printf("Running RSP for %ld cycles.\n", cycles);
+  rsp->cp0.regs[SP_STATUS_REG] = 0; /* Unhalt. */
 
 	for (i = 0; i < cycles; i++)
 		CycleRSP(rsp);

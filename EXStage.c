@@ -31,7 +31,7 @@ RSPADD(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
-  unsigned dest = rdexLatch->iw >> 16 & 0x1F;
+  unsigned dest = rdexLatch->iw >> 11 & 0x1F;
 
   exdfLatch->result.data = rs + rt;
   exdfLatch->result.dest = dest;

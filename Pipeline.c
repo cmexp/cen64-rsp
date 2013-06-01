@@ -114,8 +114,8 @@ CycleRSP(struct RSP *rsp) {
   if (!ldStoreStall && !ldUseStall)
     RSPIFStage(ifrdLatch, rsp->dmem);
   else {
-    ifrdLatch->firstIW = 0;
-    ifrdLatch->secondIW = 0;
+    RSPInvalidateOpcode(&rdexLatch->opcode);
+    RSPInvalidateVectorOpcode(&rsp->cp2.opcode);
   }
 }
 

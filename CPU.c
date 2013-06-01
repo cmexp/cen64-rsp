@@ -146,11 +146,10 @@ RSPDumpRegisters(const struct RSP *rsp) {
 
     /* Each slice is 2 bytes, and there are 8 slices. */
     /* Print in reverse order on little endian. */
-#ifndef LITTLE_ENDIAN
     for (k = 0; k < 8; k++) {
+#ifndef LITTLE_ENDIAN
       printf("%04X", rsp->cp2.regs[i].slices[k]);
 #else
-    for (k = 0; k < 8; k++) {
       uint8_t *slice = (uint8_t*) &rsp->cp2.regs[i].slices[k];
       printf("%02X%02X", slice[0], slice[1]);
 #endif
@@ -164,7 +163,12 @@ RSPDumpRegisters(const struct RSP *rsp) {
 
     /* Each slice is 2 bytes, and there are 3 slices. */
     for (k = 0; k < 3; k++) {
+#ifndef LITTLE_ENDIAN
       printf("%04X", acc[k]);
+#else
+      uint8_t *slice = (uint8_t*) &acc[k];
+      printf("%02X%02X", slice[0], slice[1]);
+#endif
 
       if (k != 2)
         putc('|', stdout);

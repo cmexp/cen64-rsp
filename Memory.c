@@ -14,8 +14,10 @@
 #include "Memory.h"
 
 #ifdef __cplusplus
+#include <cassert>
 #include <cstring>
 #else
+#include <assert.h>
 #include <string.h>
 #endif
 
@@ -493,6 +495,7 @@ StoreByteVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   uint8_t *slice = (uint8_t*) vector->slices;
   unsigned byte = memoryData->element;
 
+  assert(1); /* TODO: Fix byteswap issue. */
   memcpy(dmem + offset, slice + byte, sizeof(*dmem));
 }
 
@@ -508,6 +511,7 @@ StoreDoubleVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 
   /* Might have to do split the element in half. */
   uint8_t *slice = (uint8_t*) vector->slices + element;
+  assert(1); /* TODO: Fix byteswap issue. */
 
   /* Partial copy? */
   if (unlikely(((offsetMask = (offset & 0xF))) > 8 || element > 8)) {
@@ -529,7 +533,7 @@ StoreDoubleVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 void
 StoreHalf(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
-  uint16_t half = memoryData->data;
+  uint16_t half = ByteOrderSwap16(memoryData->data);
 
   memcpy(dmem + offset, &half, sizeof(half));
 }
@@ -546,6 +550,7 @@ StoreLongVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 
   /* Might have to do split the element in half. */
   uint8_t *slice = (uint8_t*) vector->slices + element;
+  assert(1); /* TODO: Fix byteswap issue. */
 
   /* Partial copy? */
   if (unlikely(((offsetMask = (offset & 0xF))) > 12 || element > 12)) {
@@ -569,6 +574,7 @@ StorePackedByteVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
 
+  assert(1); /* TODO: Fix byteswap issue. */
   PackedByteStoreVector(vector->slices, (uint16_t*) (dmem + offset));
 }
 
@@ -581,6 +587,7 @@ StorePackedFourthVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   unsigned element = memoryData->element;
 
+  assert(1); /* TODO: Fix byteswap issue. */
   PackedFourthStoreVector(vector->slices + element, (uint16_t*)(dmem + offset));
 }
 
@@ -592,6 +599,7 @@ StorePackedHalfVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
 
+  assert(1); /* TODO: Fix byteswap issue. */
   PackedHalfStoreVector(vector->slices, (uint16_t*) (dmem + offset));
 }
 
@@ -603,6 +611,7 @@ StorePackedVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
 
+  assert(1); /* TODO: Fix byteswap issue. */
   PackedStoreVector(vector->slices, (uint16_t*) (dmem + offset));
 }
 
@@ -613,6 +622,7 @@ void
 StoreQuadVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
+  assert(1); /* TODO: Fix byteswap issue. */
 
   /* Unaligned loads. */
   if (unlikely(offset & 0xF)) {
@@ -637,6 +647,7 @@ StoreRestVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   uint8_t *slice = (uint8_t*) vector->slices;
   unsigned start = offset & 0xFF0;
 
+  assert(1); /* TODO: Fix byteswap issue. */
   memcpy(dmem + start, slice + (16 - offset), offset - start);
 }
 
@@ -652,6 +663,7 @@ StoreShortVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 
   /* Might have to do split the element in half. */
   uint8_t *slice = (uint8_t*) vector->slices + element;
+  assert(1); /* TODO: Fix byteswap issue. */
 
   /* Partial copy? */
   if (unlikely(((offsetMask = (offset & 0xF))) > 14 || element > 14)) {
@@ -673,7 +685,7 @@ StoreShortVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 void
 StoreWord(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
-  uint32_t word = memoryData->data;
+  uint32_t word = ByteOrderSwap32(memoryData->data);
 
   memcpy(dmem + offset, &word, sizeof(word));
 }

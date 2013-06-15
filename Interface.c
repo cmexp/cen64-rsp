@@ -333,10 +333,23 @@ SPRegRead(void *_rsp, uint32_t address, void *_data) {
       4 * (((unsigned) reg) - CMD_START), data);
     break;
 
+  case SP_SEMAPHORE_REG:
+    *data = 1;
+
+    if (rsp->cp0.regs[SP_SEMAPHORE_REG] == 0) {
+      rsp->cp0.regs[SP_SEMAPHORE_REG] = 1;
+      *data = 0;
+    }
+
+    break;
+
+  case SP_DMA_FULL_REG:
+  case SP_DMA_BUSY_REG:
+    *data = 0;
+    break;
+
   default:
     *data = rsp->cp0.regs[reg];
-    if (reg == SP_SEMAPHORE_REG)
-      rsp->cp0.regs[SP_SEMAPHORE_REG] = 1;
     break;
   }
 
@@ -355,8 +368,11 @@ SPRegRead2(void *_rsp, uint32_t address, void *_data) {
   enum SPRegister reg = (enum SPRegister) ((address / 4) + SP_PC_REG);
 
   debugarg("SPRegRead: Reading from register [%s].", SPRegisterMnemonics[reg]);
-
   *data = rsp->cp0.regs[reg];
+
+  if (reg == SP_PC_REG)
+    *data &= 0xFFF;
+
   return 0;
 }
 
@@ -394,6 +410,11 @@ SPRegWrite(void *_rsp, uint32_t address, void *_data) {
 
   case SP_STATUS_REG:
     HandleSPStatusWrite(rsp, *data);
+    break;
+
+  case SP_SEMAPHORE_REG:
+    if (*data == 0)
+      rsp->cp0.regs[SP_SEMAPHORE_REG] = 0;
     break;
 
   case CMD_START:

@@ -55,7 +55,11 @@ void DestroyRSP(struct RSP *);
 void *GetRSPDMEMPtr(const struct RSP *);
 void *GetRSPIMEMPtr(const struct RSP *);
 
+#ifdef DEBUG
+void RSPDumpInstruction(uint32_t iw);
+void RSPDumpOpcodeCounts(const struct RSP *rsp);
 void RSPDumpRegisters(const struct RSP *);
+#endif
 
 #endif
 

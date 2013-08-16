@@ -85,10 +85,29 @@ InitRSP(struct RSP *rsp) {
   RSPInitCP2(&rsp->cp2);
 
   RSPInitPipeline(&rsp->pipeline);
+  RDPSetRSPDMEMPointer(rsp->dmem);
 }
 
 #ifndef NDEBUG
 #include <stdio.h>
+/* ============================================================================
+ *  RSPDumpInstruction: Prints the instruction's mnemonic and operands.
+ * ========================================================================= */
+void
+RSPDumpInstruction(uint32_t iw) {
+  const struct RSPOpcode *opcode = RSPDecodeInstruction(iw);
+
+  if (opcode->infoFlags & OPCODE_INFO_VCOMP) {
+    printf("%s ", RSPScalarOpcodeMnemonics[opcode->id]);
+    printf("\n");
+  }
+
+  else {
+    printf("%s ", RSPVectorOpcodeMnemonics[opcode->id]);
+    printf("\n");
+  }
+}
+
 /* ============================================================================
  *  RSPDumpOpcodeCounts: Prints counts of all executed opcodes.
  * ========================================================================= */

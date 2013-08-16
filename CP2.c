@@ -1337,7 +1337,7 @@ RSPVNE(struct RSPCP2 *cp2, uint32_t iw) {
 #endif
 
   cp2->vcc = 0x0000;
-  vcoVce = ~(unsigned char)(cp2->vco >> 8); /* NOT ah; MOV ax, ah; # eq = ~neq */
+  vcoVce = ~(unsigned char)(cp2->vco >> 8);
 
   for (i = 0; i < 8; i++) {
     int16_t vs = vsData[i];

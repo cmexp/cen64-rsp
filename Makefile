@@ -36,7 +36,7 @@ AR = ar
 DOXYGEN = doxygen
 
 WARNINGS = -Wall -Wextra -pedantic
-RSP_FLAGS = -DLITTLE_ENDIAN -DUSE_SSE
+RSP_FLAGS = -DLITTLE_ENDIAN -DUSE_SSE -DSSE2_ONLY
 
 COMMON_CFLAGS = $(WARNINGS) $(RSP_FLAGS) -std=c99 -march=native -I.
 COMMON_CXXFLAGS = $(WARNINGS) $(RSP_FLAGS) -std=c++0x -march=native -I.

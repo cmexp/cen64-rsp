@@ -42,6 +42,8 @@ struct RSPCP2 {
   struct RSPVector compareCode;
   struct RSPVector carryOut;
 
+  unsigned vco; /* TODO: Remove. */
+
   /* Having a larger array than necessary allows us to eliminate */
   /* a costly branch in the writeback stage every cycle. */
   bool locked[32 /* = NUM_RSP_SP_REGISTERS */ + NUM_RSP_VP_REGISTERS];

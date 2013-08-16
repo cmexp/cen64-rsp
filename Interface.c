@@ -72,7 +72,7 @@ HandleDMARead(struct RSP *rsp) {
     debugarg("DMA | SOURCE : [0x%.8x].", source);
     debugarg("DMA | LENGTH : [0x%.8x].", length);
 
-    for (j = 0; j <= length; j += 4) {
+    for (j = 0; j < length; j += 4) {
       uint32_t sourceAddr = (source + j) & 0xFFFFFF;
       uint32_t destAddr = (dest + j) & 0x1FFF;
 

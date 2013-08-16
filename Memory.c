@@ -192,8 +192,6 @@ LoadPackedFourthVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 
   /* TODO: Check. */
   assert(0);
-
-  PackedFourthLoadVector((uint16_t*) (dmem + offset), vector->slices + element);
 }
 
 /* ============================================================================
@@ -206,8 +204,6 @@ LoadPackedHalfVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 
   /* TODO: Check. */
   assert(0);
-
-  PackedHalfLoadVector((uint16_t*) (dmem + offset), vector->slices);
 }
 
 /* ============================================================================
@@ -381,7 +377,6 @@ StorePackedFourthVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 
   /* TODO: Check. */
   assert(0);
-  PackedFourthStoreVector(vector->slices + element, (uint16_t*)(dmem + offset));
 }
 
 /* ============================================================================
@@ -394,7 +389,6 @@ StorePackedHalfVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 
   /* TODO: Check. */
   assert(0);
-  PackedHalfStoreVector(vector->slices, (uint16_t*) (dmem + offset));
 }
 
 /* ============================================================================

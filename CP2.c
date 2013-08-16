@@ -1153,7 +1153,6 @@ RSPVSAR(struct RSPCP2 *cp2, uint32_t unused(iw)) {
 
 /* ============================================================================
  *  Instruction: VSUB (Vector Subtraction of Short Elements)
- *  TODO: Test this with edge cases on optimized builds.
  * ========================================================================= */
 void
 RSPVSUB(struct RSPCP2 *cp2, uint32_t iw) {

@@ -12,7 +12,7 @@
 #define __RSP__RECIPROCALROM_H__
 #include "Common.h"
 
-static const uint16_t ReciprocalLUT[1024];
+extern const uint16_t ReciprocalLUT[1024];
 
 #endif
 

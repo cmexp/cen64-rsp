@@ -42,7 +42,9 @@ struct RSPCP2 {
   struct RSPVector compareCode;
   struct RSPVector carryOut;
 
-  unsigned vco; /* TODO: Remove. */
+  uint16_t vco; /* TODO: Remove. */
+  uint16_t vcc; /* TODO: Remove. */
+  uint8_t  vce; /* TODO: Remove. */
 
   /* Having a larger array than necessary allows us to eliminate */
   /* a costly branch in the writeback stage every cycle. */
@@ -57,9 +59,9 @@ struct RSPCP2 {
   uint32_t iw;
 
   /* Recripocal data. */
-  uint32_t reciprocalIn;
-  uint32_t reciprocalResult;
-  bool shouldUseDoublePrecision;
+  bool doublePrecision;
+  int divOut;
+  int divIn;
 
 #ifndef NDEBUG
   unsigned long long counts[NUM_RSP_VECTOR_OPCODES];

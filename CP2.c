@@ -1139,18 +1139,93 @@ RSPVRCP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VRCPH (Vector Element Scalar Reciprocal (Double Prec. High))
  * ========================================================================= */
 void
-RSPVRCPH(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented function: VRCPH.");
-  cp2->mulStageDest = 0;
+RSPVRCPH(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vtRegister = iw >> 16 & 0x1F;
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned delement = iw >> 11 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+
+  uint16_t *vd = cp2->regs[vdRegister].slices;
+  const uint16_t *vt = cp2->regs[vtRegister].slices;
+  uint16_t *accLow = cp2->accumulatorLow.slices;
+
+#ifdef USE_SSE
+  __m128i vtReg = _mm_load_si128((__m128i*) vt);
+  vtReg = RSPGetVectorOperands(vtReg, element);
+  _mm_store_si128((__m128i*) accLow, vtReg);
+#else
+#warning "Unimplemented function: RSPVRCPH (No SSE)."
+#endif
+  vd[delement & 0x7] = cp2->divOut >> 16;
+  cp2->doublePrecision = true;
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================
  *  Instruction: VRCPL (Vector Element Scalar Reciprocal (Double Prec. Low))
  * ========================================================================= */
 void
-RSPVRCPL(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented function: VRCPL.");
-  cp2->mulStageDest = 0;
+RSPVRCPL(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vtRegister = iw >> 16 & 0x1F;
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned delement = iw >> 11 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+  int data, fetch, shift = 32;
+  unsigned addr;
+
+  uint16_t *vd = cp2->regs[vdRegister].slices;
+  const uint16_t *vt = cp2->regs[vtRegister].slices;
+  uint16_t *accLow = cp2->accumulatorLow.slices;
+
+  if (cp2->doublePrecision)
+    cp2->divIn |= (unsigned short) vt[element & 07];
+
+  else
+    cp2->divIn  = vt[element & 07] & 0x0000FFFF;
+
+  data = cp2->divIn;
+  if (data < 0)
+      /* -(x) if >=; ~(x) if < */
+      data = -data - (data < -32768);
+
+  /* while (shift > 0) or ((shift ^ 31) < 32) */
+  do {
+    --shift;
+
+    if (data & (1 << shift))
+      goto FOUND_MSB;
+  } while (shift);
+
+  /* if (data == 0) shift = DPH ? 16 ^ 31 : 0 ^ 31; */
+  shift = 31 - 16 * (int) cp2->doublePrecision;
+
+FOUND_MSB:
+  shift ^= 31;
+  addr = (data << shift) >> 22;
+  fetch = ReciprocalLUT[addr &= 0x000001FF];
+  shift ^= 31;
+  cp2->divOut = (0x40000000 | (fetch << 14)) >> shift;
+
+  if (cp2->divIn < 0)
+    cp2->divOut = ~cp2->divOut;
+  else if (cp2->divIn == 0)
+    cp2->divOut = 0x7FFFFFFF;
+  else if (cp2->divIn == -32768)
+    cp2->divOut = 0xFFFF0000;
+
+#ifdef USE_SSE
+  __m128i vtReg = _mm_load_si128((__m128i*) vt);
+  vtReg = RSPGetVectorOperands(vtReg, element);
+  _mm_store_si128((__m128i*) accLow, vtReg);
+#else
+#warning "Unimplemented function: RSPVRCPL (No SSE)."
+#endif
+
+  vd[delement & 0x7] = (short) cp2->divOut;
+  cp2->doublePrecision = false;
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================

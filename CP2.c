@@ -241,7 +241,7 @@ RSPVAND(struct RSPCP2 *cp2, uint32_t iw) {
  * ========================================================================= */
 void
 RSPVCH(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VCH.");
+  debug("Unimplemented function: VCH.");
   cp2->mulStageDest = 0;
 }
 
@@ -250,7 +250,7 @@ RSPVCH(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVCL(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VCL.");
+  debug("Unimplemented function: VCL.");
   cp2->mulStageDest = 0;
 }
 
@@ -259,7 +259,7 @@ RSPVCL(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVCR(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VCR.");
+  debug("Unimplemented function: VCR.");
   cp2->mulStageDest = 0;
 }
 
@@ -268,7 +268,7 @@ RSPVCR(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVEQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VEQ.");
+  debug("Unimplemented function: VEQ.");
   cp2->mulStageDest = 0;
 }
 
@@ -277,7 +277,7 @@ RSPVEQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVGE(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VGE.");
+  debug("Unimplemented function: VGE.");
   cp2->mulStageDest = 0;
 }
 
@@ -294,7 +294,7 @@ RSPVINV(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVLT(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VLT.");
+  debug("Unimplemented function: VLT.");
   cp2->mulStageDest = 0;
 }
 
@@ -385,7 +385,7 @@ RSPVMOV(struct RSPCP2 *cp2, uint32_t iw) {
  * ========================================================================= */
 void
 RSPVMRG(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VMRG.");
+  debug("Unimplemented function: VMRG.");
   cp2->mulStageDest = 0;
 }
 
@@ -394,7 +394,7 @@ RSPVMRG(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVMUDH(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VMUDH.");
+  debug("Unimplemented function: VMUDH.");
   cp2->mulStageDest = 0;
 }
 
@@ -403,7 +403,7 @@ RSPVMUDH(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVMUDL(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VMUDL.");
+  debug("Unimplemented function: VMUDL.");
   cp2->mulStageDest = 0;
 }
 
@@ -412,7 +412,7 @@ RSPVMUDL(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVMUDM(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VMUDM.");
+  debug("Unimplemented function: VMUDM.");
   cp2->mulStageDest = 0;
 }
 
@@ -421,7 +421,7 @@ RSPVMUDM(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVMUDN(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VMUDN.");
+  debug("Unimplemented function: VMUDN.");
   cp2->mulStageDest = 0;
 }
 
@@ -430,7 +430,7 @@ RSPVMUDN(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVMULF(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VMULF.");
+  debug("Unimplemented function: VMULF.");
   cp2->mulStageDest = 0;
 }
 
@@ -439,7 +439,7 @@ RSPVMULF(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVMULQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VMULQ.");
+  debug("Unimplemented function: VMULQ.");
   cp2->mulStageDest = 0;
 }
 
@@ -448,7 +448,7 @@ RSPVMULQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVMULU(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VMULU.");
+  debug("Unimplemented function: VMULU.");
   cp2->mulStageDest = 0;
 }
 
@@ -487,7 +487,7 @@ RSPVNAND(struct RSPCP2 *cp2, uint32_t iw) {
  * ========================================================================= */
 void
 RSPVNE(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VNE.");
+  debug("Unimplemented function: VNE.");
   cp2->mulStageDest = 0;
 }
 
@@ -594,7 +594,7 @@ RSPVNXOR(struct RSPCP2 *cp2, uint32_t iw) {
  * ========================================================================= */
 void
 RSPVRCP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VRCP.");
+  debug("Unimplemented function: VRCP.");
   cp2->mulStageDest = 0;
 }
 
@@ -720,7 +720,7 @@ RSPVRCPL(struct RSPCP2 *cp2, uint32_t iw) {
  * ========================================================================= */
 void
 RSPVRNDN(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VRNDN.");
+  debug("Unimplemented function: VRNDN.");
   cp2->mulStageDest = 0;
 }
 
@@ -729,7 +729,7 @@ RSPVRNDN(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVRNDP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VRNDP.");
+  debug("Unimplemented function: VRNDP.");
   cp2->mulStageDest = 0;
 }
 
@@ -738,7 +738,7 @@ RSPVRNDP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVRSQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VRSQ.");
+  debug("Unimplemented function: VRSQ.");
   cp2->mulStageDest = 0;
 }
 
@@ -747,7 +747,7 @@ RSPVRSQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVRSQH(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VRSQH.");
+  debug("Unimplemented function: VRSQH.");
   cp2->mulStageDest = 0;
 }
 
@@ -756,7 +756,7 @@ RSPVRSQH(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVRSQL(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VRSQL.");
+  debug("Unimplemented function: VRSQL.");
   cp2->mulStageDest = 0;
 }
 
@@ -765,7 +765,7 @@ RSPVRSQL(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVSAR(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VSAR.");
+  debug("Unimplemented function: VSAR.");
   cp2->mulStageDest = 0;
 }
 
@@ -775,7 +775,7 @@ RSPVSAR(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVSUB(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VSUB.");
+  debug("Unimplemented function: VSUB.");
   cp2->mulStageDest = 0;
 }
 
@@ -784,7 +784,7 @@ RSPVSUB(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  * ========================================================================= */
 void
 RSPVSUBC(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented instruction: VSUBC.");
+  debug("Unimplemented function: VSUBC.");
   cp2->mulStageDest = 0;
 }
 

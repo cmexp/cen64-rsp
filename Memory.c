@@ -34,6 +34,7 @@ static void PackedFourthStoreVector(const uint16_t* src, uint16_t *dest);
 static void PackedHalfStoreVector(const uint16_t* src, uint16_t *dest);
 static void PackedStoreVector(const uint16_t* src, uint16_t *dest);
 static void PackedByteStoreVector(const uint16_t* src, uint16_t *dest);
+static void CopyVectorSlices(void *src, void *dest);
 
 /* ============================================================================
  *  Loads odd bytes of 128-bit word into the upper byte of each vector slice.
@@ -232,6 +233,29 @@ PackedByteStoreVector(const uint16_t* src, uint16_t *dest) {
 }
 
 /* ============================================================================
+ *  Swaps the byte order of all slices within a vector.
+ * ========================================================================= */
+static void
+CopyVectorSlices(void *src, void *dest) {
+#ifdef USE_SSE
+  __m128i temp, mask;
+
+  static const uint8_t swapmask[] = {
+    0x01, 0x00, 0x03, 0x02, 0x05, 0x04, 0x07, 0x06,
+    0x09, 0x08, 0x0B, 0x0A, 0x0D, 0x0C, 0x0F, 0x0E
+  };
+
+  mask = _mm_load_si128((__m128i*) swapmask);
+  temp = _mm_loadu_si128((__m128i*) src);
+  temp = _mm_shuffle_epi8(temp, mask);
+  _mm_storeu_si128((__m128i*) dest, temp);
+
+#else
+#warning "Unimplemented function: CopyVectorSlices (No SSE)."
+#endif
+}
+
+/* ============================================================================
  *  RSPMemoryFunction: LoadByte
  * ========================================================================= */
 void
@@ -254,6 +278,9 @@ LoadByteVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   uint8_t *slice = (uint8_t*) vector->slices;
   unsigned element = memoryData->element;
+
+  /* TODO: Check. */
+  assert(0);
 
   memcpy(slice + element, dmem + offset, sizeof(*dmem));
 }
@@ -279,11 +306,12 @@ void
 LoadDoubleVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
-  unsigned element = memoryData->element;
-  unsigned offsetMask;
+  unsigned offsetMask, element = memoryData->element;
+  uint8_t data[16];
 
   /* Might have to do split the element in half. */
   uint8_t *slice = (uint8_t*) vector->slices + element;
+  CopyVectorSlices(dmem + (offset & 0xF), data);
 
   /* Partial copy? */
   if (unlikely(((offsetMask = (offset & 0xF))) > 8 || element > 8)) {
@@ -291,12 +319,12 @@ LoadDoubleVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
       ? 16 - offsetMask
       : 16 - element;
 
-    memcpy(slice, dmem + offset, readSize);
+    memcpy(slice, data + (offset & 0xF), readSize);
     return;
   }
 
   /* Full copy. */
-  memcpy(slice, dmem + offset, sizeof(uint16_t) * 4);
+  memcpy(slice, data + (offset & 0xF), sizeof(uint16_t) * 4);
 }
 
 /* ============================================================================
@@ -335,23 +363,9 @@ LoadLongVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   unsigned element = memoryData->element;
-  unsigned offsetMask;
 
-  /* Might have to do split the element in half. */
-  uint8_t *slice = (uint8_t*) vector->slices + element;
-
-  /* Partial copy? */
-  if (unlikely(((offsetMask = (offset & 0xF))) > 12 || element > 12)) {
-    unsigned readSize = (offsetMask > element)
-      ? 16 - offsetMask
-      : 16 - element;
-
-    memcpy(slice, dmem + offset, readSize);
-    return;
-  }
-
-  /* Full copy. */
-  memcpy(slice, dmem + offset, sizeof(uint16_t) * 2);
+  /* TODO: This function is likely buggy/wrong. */
+  debug("WARNING: Unimplemented llv not correct...");
 }
 
 /* ============================================================================
@@ -362,7 +376,8 @@ LoadPackedByteVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
 
-  PackedByteLoadVector((uint16_t*) (dmem + offset), vector->slices);
+  /* TODO: This function is likely buggy/wrong. */
+  debug("WARNING: Unaligned lpv not correct...");
 }
 
 /* ============================================================================
@@ -373,6 +388,9 @@ LoadPackedFourthVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   unsigned element = memoryData->element;
+
+  /* TODO: Check. */
+  assert(0);
 
   PackedFourthLoadVector((uint16_t*) (dmem + offset), vector->slices + element);
 }
@@ -385,6 +403,9 @@ LoadPackedHalfVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
 
+  /* TODO: Check. */
+  assert(0);
+
   PackedHalfLoadVector((uint16_t*) (dmem + offset), vector->slices);
 }
 
@@ -396,7 +417,8 @@ LoadPackedVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
 
-  PackedLoadVector((uint16_t*) (dmem + offset), vector->slices);
+  /* TODO: This function is likely buggy/wrong. */
+  debug("WARNING: Unaligned lpv not correct...");
 }
 
 /* ============================================================================
@@ -406,18 +428,28 @@ void
 LoadQuadVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
+  unsigned element = memoryData->element;
 
   /* Unaligned loads. */
-  if (unlikely(offset & 0xF)) {
-    uint8_t *slice = (uint8_t*) vector->slices;
-    unsigned end = (offset + 15) & 0xFF0;
+  if (unlikely(offset & 0xF || element != 0)) {
+    unsigned i, end = (offset + 15) & 0xFF0;
 
-    memcpy(slice - (offset & 0xFF0), dmem + offset, end - offset);
+    /* TODO: Handle edge case (when element != 0). */
+    uint8_t *slice = (uint8_t*) vector->slices + element, data[16];
+    CopyVectorSlices(data, dmem + (offset & 0xFF0));
+    assert(element == 0);
+
+    /* TODO: This function is likely buggy/wrong. */
+    debug("WARNING: Unaligned lqv not correct...");
+
+    for (i = 0; i < end - offset; i++)
+      slice[i] = data[element + i];
+
     return;
   }
 
   /* Aligned loads. */
-  memcpy(vector->slices, dmem + offset, sizeof(vector->slices));
+  CopyVectorSlices(dmem + offset, vector->slices);
 }
 
 /* ============================================================================
@@ -430,6 +462,9 @@ LoadRestVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   uint8_t *slice = (uint8_t*) vector->slices;
   unsigned start = offset & 0xFF0;
 
+  /* TODO: Check. */
+  assert(0);
+
   memcpy(slice + (16 - offset), dmem + start, offset - start);
 }
 
@@ -441,23 +476,9 @@ LoadShortVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   unsigned element = memoryData->element;
-  unsigned offsetMask;
 
-  /* Might have to do split the element in half. */
-  uint8_t *slice = (uint8_t*) vector->slices + element;
-
-  /* Partial copy? */
-  if (unlikely(((offsetMask = (offset & 0xF))) > 14 || element > 14)) {
-    unsigned readSize = (offsetMask > element)
-      ? 16 - offsetMask
-      : 16 - element;
-
-    memcpy(slice, dmem + offset, readSize);
-    return;
-  }
-
-  /* Full copy. */
-  memcpy(slice, dmem + offset, sizeof(uint16_t));
+  /* TODO: This function is likely buggy/wrong. */
+  debug("WARNING: Unimplemented lsv not correct...");
 }
 
 /* ============================================================================
@@ -495,8 +516,8 @@ StoreByteVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   uint8_t *slice = (uint8_t*) vector->slices;
   unsigned byte = memoryData->element;
 
-  assert(1); /* TODO: Fix byteswap issue. */
-  memcpy(dmem + offset, slice + byte, sizeof(*dmem));
+  /* TODO: Check for correctness. */
+  dmem[offset] = slice[byte ^ 1];
 }
 
 /* ============================================================================
@@ -507,24 +528,9 @@ StoreDoubleVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   unsigned element = memoryData->element;
-  unsigned offsetMask;
 
-  /* Might have to do split the element in half. */
-  uint8_t *slice = (uint8_t*) vector->slices + element;
-  assert(1); /* TODO: Fix byteswap issue. */
-
-  /* Partial copy? */
-  if (unlikely(((offsetMask = (offset & 0xF))) > 8 || element > 8)) {
-    unsigned readSize = (offsetMask > element)
-      ? 16 - offsetMask
-      : 16 - element;
-
-    memcpy(dmem + offset, slice, readSize);
-    return;
-  }
-
-  /* Full copy. */
-  memcpy(dmem + offset, slice, sizeof(uint16_t) * 4);
+  /* TODO: This function is likely buggy/wrong. */
+  debug("WARNING: Unimplemented sdv not correct...");
 }
 
 /* ============================================================================
@@ -546,24 +552,9 @@ StoreLongVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   unsigned element = memoryData->element;
-  unsigned offsetMask;
 
-  /* Might have to do split the element in half. */
-  uint8_t *slice = (uint8_t*) vector->slices + element;
-  assert(1); /* TODO: Fix byteswap issue. */
-
-  /* Partial copy? */
-  if (unlikely(((offsetMask = (offset & 0xF))) > 12 || element > 12)) {
-    unsigned readSize = (offsetMask > element)
-      ? 16 - offsetMask
-      : 16 - element;
-
-    memcpy(dmem + offset, slice, readSize);
-    return;
-  }
-
-  /* Full copy. */
-  memcpy(dmem + offset, slice, sizeof(uint16_t) * 2);
+  /* TODO: This function is likely buggy/wrong. */
+  debug("WARNING: Unimplemented slv not correct...");
 }
 
 /* ============================================================================
@@ -574,8 +565,8 @@ StorePackedByteVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
 
-  assert(1); /* TODO: Fix byteswap issue. */
-  PackedByteStoreVector(vector->slices, (uint16_t*) (dmem + offset));
+  /* TODO: This function is likely buggy/wrong. */
+  debug("WARNING: Unimplemented spv not correct...");
 }
 
 /* ============================================================================
@@ -587,7 +578,8 @@ StorePackedFourthVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   unsigned element = memoryData->element;
 
-  assert(1); /* TODO: Fix byteswap issue. */
+  /* TODO: Check. */
+  assert(0);
   PackedFourthStoreVector(vector->slices + element, (uint16_t*)(dmem + offset));
 }
 
@@ -599,7 +591,8 @@ StorePackedHalfVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
 
-  assert(1); /* TODO: Fix byteswap issue. */
+  /* TODO: Check. */
+  assert(0);
   PackedHalfStoreVector(vector->slices, (uint16_t*) (dmem + offset));
 }
 
@@ -611,8 +604,8 @@ StorePackedVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
 
-  assert(1); /* TODO: Fix byteswap issue. */
-  PackedStoreVector(vector->slices, (uint16_t*) (dmem + offset));
+  /* TODO: This function is likely buggy/wrong. */
+  debug("WARNING: Unimplemented spv not correct...");
 }
 
 /* ============================================================================
@@ -622,19 +615,27 @@ void
 StoreQuadVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
-  assert(1); /* TODO: Fix byteswap issue. */
+  unsigned element = memoryData->element;
 
-  /* Unaligned loads. */
-  if (unlikely(offset & 0xF)) {
-    uint8_t *slice = (uint8_t*) vector->slices;
-    unsigned end = (offset + 15) & 0xFF0;
+  /* Unaligned stores. */
+  if (unlikely(offset & 0xF || element != 0)) {
+    unsigned i, end = element + 16 - (offset & 0xF);
 
-    memcpy(dmem + offset, slice - (offset & 0xFF0), end - offset);
+    /* TODO: Handle edge case (when element != 0). */
+    uint8_t *slice = (uint8_t*) vector->slices + element, data[16];
+    CopyVectorSlices(dmem + (offset & 0xF), data);
+    assert(element == 0);
+
+    /* TODO: This function is likely buggy/wrong. */
+    debug("WARNING: Unaligned sqv not correct...");
+    for (i = element; i < end; i++)
+      dmem[offset + i] = slice[i];
+
     return;
   }
 
-  /* Aligned loads. */
-  memcpy(dmem + offset, vector->slices, sizeof(vector->slices));
+  /* Aligned stores. */
+  CopyVectorSlices(vector->slices, dmem + offset);
 }
 
 /* ============================================================================
@@ -647,7 +648,9 @@ StoreRestVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   uint8_t *slice = (uint8_t*) vector->slices;
   unsigned start = offset & 0xFF0;
 
-  assert(1); /* TODO: Fix byteswap issue. */
+  /* TODO: Check. */
+  assert(0);
+
   memcpy(dmem + start, slice + (16 - offset), offset - start);
 }
 
@@ -659,24 +662,9 @@ StoreShortVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   unsigned element = memoryData->element;
-  unsigned offsetMask;
 
-  /* Might have to do split the element in half. */
-  uint8_t *slice = (uint8_t*) vector->slices + element;
-  assert(1); /* TODO: Fix byteswap issue. */
-
-  /* Partial copy? */
-  if (unlikely(((offsetMask = (offset & 0xF))) > 14 || element > 14)) {
-    unsigned readSize = (offsetMask > element)
-      ? 16 - offsetMask
-      : 16 - element;
-
-    memcpy(dmem + offset, slice, readSize);
-    return;
-  }
-
-  /* Full copy. */
-  memcpy(dmem + offset, slice, sizeof(uint16_t));
+  /* TODO: This function is likely buggy/wrong. */
+  debug("WARNING: Unimplemented lsv not correct...");
 }
 
 /* ============================================================================

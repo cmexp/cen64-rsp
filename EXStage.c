@@ -16,10 +16,8 @@
 #include "Pipeline.h"
 
 #ifdef __cplusplus
-#include <cassert>
 #include <cstring>
 #else
-#include <assert.h>
 #include <string.h>
 #endif
 
@@ -318,6 +316,7 @@ RSPLBV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadByteVector;
@@ -336,6 +335,7 @@ RSPLDV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadDoubleVector;
@@ -354,6 +354,7 @@ RSPLFV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadPackedFourthVector;
@@ -401,13 +402,15 @@ RSPLHV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadPackedHalfVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 4);
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================
@@ -421,6 +424,7 @@ RSPLLV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadLongVector;
@@ -436,13 +440,15 @@ RSPLPV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadPackedByteVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 3);
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================
@@ -453,13 +459,15 @@ RSPLQV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadQuadVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 4);
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================
@@ -470,13 +478,15 @@ RSPLRV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadRestVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 4);
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================
@@ -490,6 +500,7 @@ RSPLSV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadShortVector;
@@ -528,13 +539,15 @@ RSPLUV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadPackedVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 3);
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================
@@ -645,6 +658,7 @@ RSPSBV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StoreByteVector;
@@ -663,6 +677,7 @@ RSPSDV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StoreDoubleVector;
@@ -681,6 +696,7 @@ RSPSFV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StorePackedFourthVector;
@@ -711,13 +727,15 @@ RSPSHV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StorePackedHalfVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 4);
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================
@@ -761,6 +779,7 @@ RSPSLV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StoreLongVector;
@@ -834,13 +853,15 @@ RSPSPV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StorePackedByteVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 3);
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================
@@ -851,13 +872,15 @@ RSPSQV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StoreQuadVector;
   exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================
@@ -928,13 +951,15 @@ RSPSRV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StoreRestVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 4);
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================
@@ -948,6 +973,7 @@ RSPSSV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StoreShortVector;
@@ -971,13 +997,15 @@ RSPSUV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
 
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
+  offset |= -(offset & 0x0040);
 
-  assert((rdexLatch->iw >> 7 & 0xF) == 0);
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StorePackedVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 3);
+  exdfLatch->memoryData.element = element;
 }
 
 /* ============================================================================

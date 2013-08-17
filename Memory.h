@@ -39,6 +39,7 @@ void LoadPackedVector(const struct RSPMemoryData *, uint8_t *);
 void LoadQuadVector(const struct RSPMemoryData *, uint8_t *);
 void LoadRestVector(const struct RSPMemoryData *, uint8_t *);
 void LoadShortVector(const struct RSPMemoryData *, uint8_t *);
+void LoadTransposeVector(const struct RSPMemoryData *, uint8_t *);
 void LoadWord(const struct RSPMemoryData *, uint8_t *);
 void StoreByte(const struct RSPMemoryData *, uint8_t *);
 void StoreByteVector(const struct RSPMemoryData *, uint8_t *);
@@ -52,6 +53,7 @@ void StorePackedVector(const struct RSPMemoryData *, uint8_t *);
 void StoreQuadVector(const struct RSPMemoryData *, uint8_t *);
 void StoreRestVector(const struct RSPMemoryData *, uint8_t *);
 void StoreShortVector(const struct RSPMemoryData *, uint8_t *);
+void StoreTransposeVector(const struct RSPMemoryData *, uint8_t *);
 void StoreWord(const struct RSPMemoryData *, uint8_t *);
 
 #endif

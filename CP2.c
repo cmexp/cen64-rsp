@@ -500,9 +500,57 @@ RSPVCL(struct RSPCP2 *cp2, uint32_t iw) {
  *  Instruction: VCR (Vector Select Crimp Test Low)
  * ========================================================================= */
 void
-RSPVCR(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented function: VCR.");
-  cp2->mulStageDest = 0;
+RSPVCR(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned vtRegister = iw >> 16 & 0x1F;
+  unsigned vsRegister = iw >> 11 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+
+  int16_t *vd = cp2->regs[vdRegister].slices;
+  const int16_t *vsData = cp2->regs[vsRegister].slices;
+  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+  int16_t *accLow = cp2->accumulatorLow.slices;
+
+  int16_t vtData[8];
+  unsigned char vcoVce;
+  unsigned i;
+  int ge, le;
+
+#ifdef USE_SSE
+  __m128i vtReg = _mm_load_si128((__m128i*) vtDataIn);
+  vtReg = RSPGetVectorOperands(vtReg, element);
+    _mm_store_si128((__m128i*) vtData, vtReg);
+#else
+#warning "Unimplemented function: RSPVCR (No SSE)."
+#endif
+
+  cp2->vcc = 0x0000;
+
+  for (i = 0; i < 8; i++) {
+    const signed short vs = vsData[i];
+    const signed short vt = vtData[i];
+    const int sn = (vs ^ vt) < 0;
+
+    if (sn) {
+      ge = (vt < 0);
+      le = (vs + vt < 0);
+      accLow[i] = le ? ~vt : vs;
+    }
+
+    else {
+      le = (vt < 0);
+      ge = (vs - vt >= 0);
+      accLow[i] = le ? vt : vs;
+    }
+
+    cp2->vcc |= (ge <<= (i + 8)) | (le <<= (i + 0));
+  }
+
+  memcpy(vd, accLow, sizeof(short) * 8);
+  cp2->vco = 0x0000;
+  cp2->vce = 0x00;
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================
@@ -1671,9 +1719,59 @@ RSPVNXOR(struct RSPCP2 *cp2, uint32_t iw) {
  *  Instruction: VRCP (Vector Element Scalar Reciprocal (Single Precision))
  * ========================================================================= */
 void
-RSPVRCP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented function: VRCP.");
-  cp2->mulStageDest = 0;
+RSPVRCP(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vtRegister = iw >> 16 & 0x1F;
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned delement = iw >> 11 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+
+  int16_t *vd = cp2->regs[vdRegister].slices;
+  const int16_t *vt = cp2->regs[vtRegister].slices;
+  int16_t *accLow = cp2->accumulatorLow.slices;
+
+  unsigned int addr;
+  int data;
+  int fetch;
+  int shift = 32;
+
+  cp2->divIn = (int) vt[element & 07];
+  data = cp2->divIn;
+
+  if (data < 0)
+      data = -data;
+
+  /* while (shift > 0) or ((shift ^ 31) < 32) */
+  do {
+    --shift;
+    if (data & (1 << shift))
+      goto FOUND_MSB;
+  } while (shift);
+
+  shift = 16 ^ 31;
+FOUND_MSB:
+  shift ^= 31;
+  addr = (data << shift) >> 22;
+  fetch = ReciprocalLUT[addr &= 0x000001FF];
+  shift ^= 31;
+  cp2->divOut = (0x40000000 | (fetch << 14)) >> shift;
+
+  if (cp2->divIn < 0)
+    cp2->divOut = ~cp2->divOut;
+  else if (cp2->divIn == 0)
+    cp2->divOut = 0x7FFFFFFF;
+  else if (cp2->divIn == -32768)
+    cp2->divOut = 0xFFFF0000;
+
+#ifdef USE_SSE
+  __m128i vtReg = _mm_load_si128((__m128i*) vt);
+  vtReg = RSPGetVectorOperands(vtReg, element);
+  _mm_store_si128((__m128i*) accLow, vtReg);
+#else
+#warning "Unimplemented function: RSPVRCP (No SSE)."
+#endif
+
+    vd[delement & 07] = (short) cp2->divOut;
+    cp2->doublePrecision = 0;
 }
 
 /* ============================================================================
@@ -1699,6 +1797,7 @@ RSPVRCPH(struct RSPCP2 *cp2, uint32_t iw) {
 #else
 #warning "Unimplemented function: RSPVRCPH (No SSE)."
 #endif
+
   vd[delement & 0x7] = cp2->divOut >> 16;
   cp2->doublePrecision = true;
 

@@ -16,8 +16,10 @@
 #include "Pipeline.h"
 
 #ifdef __cplusplus
+#include <cassert>
 #include <cstring>
 #else
+#include <assert.h>
 #include <string.h>
 #endif
 
@@ -999,16 +1001,27 @@ void
 RSPSTV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+  unsigned i, start;
 
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  assert((dest & 7) == 0 && "STV: Invalid `vt` for transpose specified.");
+  assert((element & 0x1) == 0 && "Element references odd byte of slice?");
+
+  exdfLatch->result.dest = SET_VECTOR_DEST(NUM_RSP_VP_REGISTERS);
   exdfLatch->memoryData.function = &StoreTransposeVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
+
+  /* Collect all the pieces. */
+  start = element >> 1;
+  for (i = 0; i < 8; start = (start + 1) & 7, i++) {
+    uint16_t slice = rsp->cp2.regs[dest + start].slices[i];
+    rsp->cp2.transposeVector.slices[i] = slice;
+  }
 }
 
 /* ============================================================================

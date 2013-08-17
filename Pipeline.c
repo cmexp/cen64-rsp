@@ -82,6 +82,8 @@ CycleRSP(struct RSP *rsp) {
   struct RSPOpcode dfOpcode = exdfLatch->opcode;
   struct RSPOpcode exOpcode = rdexLatch->opcode;
 
+  assert(rsp->bus != NULL);
+
   /* If we're halted, just bail out. */
   if (rsp->cp0.regs[SP_STATUS_REG] & 0x1)
     return;

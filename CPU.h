@@ -40,7 +40,7 @@ struct RSP {
 
   /* Having a larger array than necessary allows us to eliminate */
   /* a costly branch in the writeback stage every cycle. */
-  uint32_t regs[NUM_RSP_REGISTERS + NUM_RSP_VP_REGISTERS];
+  uint32_t regs[NUM_RSP_REGISTERS + NUM_RSP_VP_REGISTERS + 1];
 
   struct BusController *bus;
   struct RSPCP0 cp0;

@@ -32,7 +32,8 @@ struct RSPVector {
 };
 
 struct RSPCP2 {
-  struct RSPVector regs[NUM_RSP_VP_REGISTERS];
+  struct RSPVector regs[NUM_RSP_VP_REGISTERS] align(16);
+  struct RSPVector transposeVector;
   struct RSPVector accumulatorHigh;
   struct RSPVector accumulatorMid;
   struct RSPVector accumulatorLow;

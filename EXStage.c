@@ -207,15 +207,39 @@ RSPBREAK(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
  *  Instruction: CFC2 (Move Control From Coprocessor 2 (VU))
  * ========================================================================= */
 void
-RSPCFC2(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
-  debug("Unimplemented function: CFC2.");
+RSPCFC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
+  const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+
+  unsigned source = rdexLatch->iw >> 11 & 0x1F;
+  unsigned dest = rdexLatch->iw >> 16 & 0x1F;
+  unsigned data;
+
+  switch (source & 3) {
+    case 0: data = rsp->cp2.vco; break;
+    case 1: data = rsp->cp2.vcc; break;
+    case 2: data = rsp->cp2.vce; break;
+    case 3: data = rsp->cp2.vce; break;
+  }
+
+  exdfLatch->result.data = data;
+  exdfLatch->result.dest = dest;
+  
 }
 /* ============================================================================
  *  Instruction: CTC2 (Move Control To Coprocessor 2 (VU))
  * ========================================================================= */
 void
-RSPCTC2(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
-  debug("Unimplemented function: CTC2.");
+RSPCTC2(struct RSP *rsp, uint32_t unused(rs), uint32_t rt) {
+  const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  unsigned dest = rdexLatch->iw >> 11 & 0x1F;
+
+  switch (dest & 3) {
+    case 0: rsp->cp2.vco = rt; break;
+    case 1: rsp->cp2.vcc = rt; break;
+    case 2: rsp->cp2.vce = rt; break;
+    case 3: rsp->cp2.vce = rt; break;
+  }
 }
 
 /* ============================================================================
@@ -583,16 +607,29 @@ RSPLW(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
  *  Instruction: MFC2 (Move From Coprocessor 2 (VU))
  * ========================================================================= */
 void
-RSPMFC2(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
-  debug("Unimplemented function: MFC2.");
+RSPMFC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
+  const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
+  unsigned source = rdexLatch->iw >> 11 & 0x1F;
+  unsigned dest = rdexLatch->iw >> 16 & 0x1F;
+
+  int16_t data = rsp->cp2.regs[source].slices[element];
+  exdfLatch->result.data = (int32_t) data;
+  exdfLatch->result.dest = dest;
 }
 
 /* ============================================================================
  *  Instruction: MTC2 (Move To Coprocessor 2 (VU))
  * ========================================================================= */
 void
-RSPMTC2(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
-  debug("Unimplemented function: MTC2.");
+RSPMTC2(struct RSP *rsp, uint32_t unused(rs), uint32_t rt) {
+  const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  unsigned element = rdexLatch->iw >> 7 & 0xF;
+  unsigned dest = rdexLatch->iw >> 11 & 0x1F;
+
+  rsp->cp2.regs[dest].slices[element] = rt;
 }
 
 /* ============================================================================

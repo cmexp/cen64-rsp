@@ -661,9 +661,87 @@ RSPVLT(struct RSPCP2 *cp2, uint32_t iw) {
  *  Instruction: VMACF (Vector Multiply-Accumulate of Signed Fractions)
  * ========================================================================= */
 void
-RSPVMACF(struct RSPCP2 *cp2, uint32_t unused(iw)) {
+RSPVMACF(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vtRegister = iw >> 16 & 0x1F;
+  unsigned vsRegister = iw >> 11 & 0x1F;
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+
+  uint16_t *vd = cp2->regs[vdRegister].slices;
+  const uint16_t *vt = cp2->regs[vtRegister].slices;
+  const uint16_t *vs = cp2->regs[vsRegister].slices;
+  uint16_t *accLow = cp2->accumulatorLow.slices;
+  uint16_t *accMid = cp2->accumulatorMid.slices;
+  uint16_t *accHigh = cp2->accumulatorHigh.slices;
+
+#ifdef USE_SSE
+  __m128i loProduct, hiProduct, unpackLo, unpackHi;
+  __m128i vaccTemp, vaccLow, vaccMid, vaccHigh;
+  __m128i vdReg, vdRegLo, vdRegHi;
+
+  vaccLow = _mm_load_si128((__m128i*) accLow);
+  vaccMid = _mm_load_si128((__m128i*) accMid);
+  __m128i vsReg = _mm_load_si128((__m128i*) vs);
+  __m128i vtReg = _mm_load_si128((__m128i*) vt);
+  vtReg = RSPGetVectorOperands(vtReg, element);
+
+  /* Unpack to obtain for 32-bit precision. */
+  RSPZeroExtend16to32(vaccLow, &vaccLow, &vaccHigh);
+
+  /* Begin accumulating the products. */
+  unpackLo = _mm_mullo_epi16(vsReg, vtReg);
+  unpackHi = _mm_mulhi_epi16(vsReg, vtReg);
+  loProduct = _mm_unpacklo_epi16(unpackLo, unpackHi);
+  hiProduct = _mm_unpackhi_epi16(unpackLo, unpackHi);
+  loProduct = _mm_slli_epi32(loProduct, 1);
+  hiProduct = _mm_slli_epi32(hiProduct, 1);
+
+#ifdef SSE2_ONLY
+  vdRegLo = _mm_srli_epi32(loProduct, 16);
+  vdRegHi = _mm_srli_epi32(hiProduct, 16);
+  vdRegLo = _mm_slli_epi32(vdRegLo, 16);
+  vdRegHi = _mm_slli_epi32(vdRegHi, 16);
+  vdRegLo = _mm_xor_si128(vdRegLo, loProduct);
+  vdRegHi = _mm_xor_si128(vdRegHi, hiProduct);
+#else
+  vdRegLo = _mm_blend_epi16(loProduct, _mm_setzero_si128(), 0xAA);
+  vdRegHi = _mm_blend_epi16(hiProduct, _mm_setzero_si128(), 0xAA);
+#endif
+
+  vaccLow = _mm_add_epi32(vaccLow, vdRegLo);
+  vaccHigh = _mm_add_epi32(vaccHigh, vdRegHi);
+
+  vdReg = RSPPackLo32to16(vaccLow, vaccHigh);
+  _mm_store_si128((__m128i*) accLow, vdReg);
+
+  /* Multiply the MSB of sources, accumulate the product. */
+  vaccTemp = _mm_load_si128((__m128i*) accHigh);
+  vdRegLo = _mm_unpacklo_epi16(vaccMid, vaccTemp);
+  vdRegHi = _mm_unpackhi_epi16(vaccMid, vaccTemp);
+
+  loProduct = _mm_srai_epi32(loProduct, 16);
+  hiProduct = _mm_srai_epi32(hiProduct, 16);
+  vaccLow = _mm_srai_epi32(vaccLow, 16);
+  vaccHigh = _mm_srai_epi32(vaccHigh, 16);
+
+  vaccLow = _mm_add_epi32(loProduct, vaccLow);
+  vaccHigh = _mm_add_epi32(hiProduct, vaccHigh);
+  vaccLow = _mm_add_epi32(vdRegLo, vaccLow);
+  vaccHigh = _mm_add_epi32(vdRegHi, vaccHigh);
+
+  /* Clamp the accumulator and write it all out. */
+  vdReg = _mm_packs_epi32(vaccLow, vaccHigh);
+  vaccMid = RSPPackLo32to16(vaccLow, vaccHigh);
+  vaccHigh = RSPPackHi32to16(vaccLow, vaccHigh);
+
+  _mm_store_si128((__m128i*) vd, vdReg);
+  _mm_store_si128((__m128i*) accMid, vaccMid);
+  _mm_store_si128((__m128i*) accHigh, vaccHigh);
+#else
   debug("Unimplemented function: VMACF.");
-  cp2->mulStageDest = 0;
+#endif
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================

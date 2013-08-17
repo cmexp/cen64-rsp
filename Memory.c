@@ -415,10 +415,21 @@ LoadShortVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
  * ========================================================================= */
 void
 LoadTransposeVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
-  struct RSPVector *vector = (struct RSPVector*) memoryData->target;
+  unsigned element = memoryData->element, dest, i, j;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
+  struct RSPCP2 *cp2 = memoryData->cp2;
+  uint16_t slices[8];
 
-  /*assert(0);*/
+  dest = (struct RSPVector*) memoryData->target - cp2->regs;
+  offset &= 0xFF0;
+
+  /* Currently dont even bother to handle either of these. */
+  assert((offset & 0xF) == 0 && "Destination is not 128-bit aligned?");
+  assert((element & 0x1) == 0 && "Element references odd byte of slice?");
+  CopyVectorSlices(dmem + offset, slices);
+
+  for (i = 0, j = 8 - (element >> 1); i < 8; i++, j = (j + 1) & 7)
+    cp2->regs[dest + i].slices[j] = slices[i];
 }
 
 /* ============================================================================

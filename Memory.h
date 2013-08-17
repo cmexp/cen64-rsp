@@ -18,6 +18,7 @@ typedef void (*RSPMemoryFunction)(const struct RSPMemoryData *, uint8_t *);
 
 struct RSPMemoryData{
   RSPMemoryFunction function;
+  struct RSPCP2 *cp2;
 
   void *target;
   unsigned element;

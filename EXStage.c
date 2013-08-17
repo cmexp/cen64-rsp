@@ -547,10 +547,13 @@ RSPLTV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
+  assert((dest & 7) == 0 && "STV: Invalid `vt` for transpose specified.");
+
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &LoadTransposeVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
+  exdfLatch->memoryData.cp2 = &rsp->cp2;
 }
 
 /* ============================================================================

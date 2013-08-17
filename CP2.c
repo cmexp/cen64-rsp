@@ -1560,6 +1560,8 @@ RSPVRCPH(struct RSPCP2 *cp2, uint32_t iw) {
   const int16_t *vt = cp2->regs[vtRegister].slices;
   int16_t *accLow = cp2->accumulatorLow.slices;
 
+  cp2->divIn = vt[element & 07] << 16;
+
 #ifdef USE_SSE
   __m128i vtReg = _mm_load_si128((__m128i*) vt);
   vtReg = RSPGetVectorOperands(vtReg, element);
@@ -1670,18 +1672,98 @@ RSPVRSQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VRSQH (Vector Element Scalar SQRT Reciprocal (Double Prec. H))
  * ========================================================================= */
 void
-RSPVRSQH(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented function: VRSQH.");
-  cp2->mulStageDest = 0;
+RSPVRSQH(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vtRegister = iw >> 16 & 0x1F;
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned delement = iw >> 11 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+
+  int16_t *vd = cp2->regs[vdRegister].slices;
+  const int16_t *vt = cp2->regs[vtRegister].slices;
+  int16_t *accLow = cp2->accumulatorLow.slices;
+
+  cp2->divIn = vt[element & 07] << 16;
+
+#ifdef USE_SSE
+  __m128i vtReg = _mm_load_si128((__m128i*) vt);
+  vtReg = RSPGetVectorOperands(vtReg, element);
+  _mm_store_si128((__m128i*) accLow, vtReg);
+#else
+#warning "Unimplemented function: RSPVRSQH (No SSE)."
+#endif
+
+  vd[delement & 07] = cp2->divOut >> 16;
+  cp2->doublePrecision = true;
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================
  *  Instruction: VRSQL (Vector Element Scalar SQRT Reciprocal (Double Prec. L))
  * ========================================================================= */
 void
-RSPVRSQL(struct RSPCP2 *cp2, uint32_t unused(iw)) {
-  debug("Unimplemented function: VRSQL.");
-  cp2->mulStageDest = 0;
+RSPVRSQL(struct RSPCP2 *cp2, uint32_t iw) {
+  unsigned vtRegister = iw >> 16 & 0x1F;
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned delement = iw >> 11 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+  int data, fetch, shift = 32;
+  unsigned addr;
+
+  int16_t *vd = cp2->regs[vdRegister].slices;
+  const int16_t *vt = cp2->regs[vtRegister].slices;
+  int16_t *accLow = cp2->accumulatorLow.slices;
+
+  if (cp2->doublePrecision)
+    cp2->divIn |= (unsigned short) vt[element & 07];
+  else
+    cp2->divIn  = vt[element & 07] & 0x0000FFFF; /* Do not sign-extend. */
+
+  data = cp2->divIn;
+
+  if (data < 0)
+    /* -(x) if >=; ~(x) if < */
+    data = -data - (data < -32768);
+
+  /* while (shift > 0) or ((shift ^ 31) < 32) */
+  do {
+    --shift;
+    if (data & (1 << shift))
+      goto FOUND_MSB;
+  } while (shift);
+
+  /* if (data == 0) shift = DPH ? 16 ^ 31 : 0 ^ 31; */
+  shift = 31 - 16 * cp2->doublePrecision;
+
+FOUND_MSB:
+  shift ^= 31;
+  addr = (data << shift) >> 22;
+  addr &= 0x000001FE;
+  addr |= 0x00000200 | (shift & 1);
+  fetch = ReciprocalLUT[addr];
+  shift ^= 31;
+  shift >>= 1;
+  cp2->divOut = (0x40000000 | (fetch << 14)) >> shift;
+
+  if (cp2->divIn < 0)
+    cp2->divOut = ~cp2->divOut;
+  else if (cp2->divIn == 0)
+    cp2->divOut = 0x7FFFFFFF;
+  else if (cp2->divIn == -32768)
+    cp2->divOut = 0xFFFF0000;
+
+#ifdef USE_SSE
+  __m128i vtReg = _mm_load_si128((__m128i*) vt);
+  vtReg = RSPGetVectorOperands(vtReg, element);
+  _mm_store_si128((__m128i*) accLow, vtReg);
+#else
+#warning "Unimplemented function: RSPVRSQL (No SSE)."
+#endif
+
+  vd[delement & 0x7] = (short) cp2->divOut;
+  cp2->doublePrecision = false;
+
+  cp2->mulStageDest = vdRegister;
 }
 
 /* ============================================================================

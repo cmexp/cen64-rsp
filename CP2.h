@@ -60,7 +60,7 @@ struct RSPCP2 {
   uint32_t iw;
 
   /* Recripocal data. */
-  bool doublePrecision;
+  int doublePrecision;
   int divOut;
   int divIn;
 

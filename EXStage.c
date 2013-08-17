@@ -615,7 +615,10 @@ RSPMFC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
   unsigned source = rdexLatch->iw >> 11 & 0x1F;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
 
-  int16_t data = rsp->cp2.regs[source].slices[element];
+  /* Not treated the same? */
+  assert(element != 0xF);
+
+  int16_t data = rsp->cp2.regs[source].slices[element >> 1];
   exdfLatch->result.data = (int32_t) data;
   exdfLatch->result.dest = dest;
 }
@@ -629,7 +632,7 @@ RSPMTC2(struct RSP *rsp, uint32_t unused(rs), uint32_t rt) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 11 & 0x1F;
 
-  rsp->cp2.regs[dest].slices[element] = rt;
+  rsp->cp2.regs[dest].slices[element >> 1] = rt;
 }
 
 /* ============================================================================

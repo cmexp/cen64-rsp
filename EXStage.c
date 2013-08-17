@@ -929,7 +929,7 @@ RSPSQV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 
   exdfLatch->result.dest = SET_VECTOR_DEST(dest);
   exdfLatch->memoryData.function = &StoreQuadVector;
-  exdfLatch->memoryData.offset = rs + offset;
+  exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
 }
 

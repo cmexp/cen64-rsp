@@ -15,8 +15,12 @@
 #include "ReciprocalROM.h"
 
 #ifdef __cplusplus
+#include <cassert>
+#include <cstdio>
 #include <cstring>
 #else
+#include <assert.h>
+#include <stdio.h>
 #include <string.h>
 #endif
 
@@ -257,28 +261,30 @@ RSPVADD(struct RSPCP2 *cp2, uint32_t iw) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
-  __m128i minSlices, maxSlices, satSum, unsatSum;
-  __m128i vtReg, vsReg, carryIn;
+  __m128i minimum, maximum, carryOut;
+  __m128i vdReg, vaccLow;
 
-  vtReg = _mm_load_si128((__m128i*) vt);
-  vsReg = _mm_load_si128((__m128i*) vs);
+  __m128i vtReg = _mm_load_si128((__m128i*) vt);
+  __m128i vsReg = _mm_load_si128((__m128i*) vs);
   vtReg = RSPGetVectorOperands(vtReg, element);
 
-  /* Load the current carries, clear it out. */
-  carryIn = RSPGetNewVCO(cp2->vco);
+  carryOut = RSPGetNewVCO(cp2->vco);
+  /* What bits are these? Carry? */
+  /* rsp->vco = _mm_setzero_si128(); */
 
-  /* Use unsaturated arithmetic for the accumulator. */
-  unsatSum = _mm_add_epi16(vsReg, vtReg);
-  unsatSum = _mm_add_epi16(unsatSum, carryIn);
+  /* VACC uses unsaturated arithmetic. */
+  vdReg = _mm_add_epi16(vsReg, vtReg);
+  vaccLow = _mm_add_epi16(vdReg, carryOut);
 
-  /* Saturate the sum, including the carry. */
-  minSlices = _mm_min_epi16(vsReg, vtReg);
-  maxSlices = _mm_max_epi16(vsReg, vtReg);
-  minSlices = _mm_adds_epi16(minSlices, carryIn);
-  satSum = _mm_adds_epi16(minSlices, maxSlices);
+  /* VD is the signed sum of the two sources and the carry. Since we */
+  /* have to saturate the sum of all three, we have to be clever. */
+  minimum = _mm_min_epi16(vsReg, vtReg);
+  maximum = _mm_max_epi16(vsReg, vtReg);
+  minimum = _mm_adds_epi16(minimum, carryOut);
+  vdReg = _mm_adds_epi16(minimum, maximum);
 
-  _mm_store_si128((__m128i*) vd, satSum);
-  _mm_store_si128((__m128i*) accLow, unsatSum);
+  _mm_store_si128((__m128i*) vd, vdReg);
+  _mm_store_si128((__m128i*) accLow, vaccLow);
   cp2->vco = 0;
 #else
 #warning "Unimplemented function: RSPVADD (No SSE)."
@@ -1214,7 +1220,7 @@ RSPVMOV(struct RSPCP2 *cp2, uint32_t iw) {
   debug("Unimplemented function: VMOV.");
 #endif
 
-  vd[delement] = accLow[delement & 0x7];
+  vd[delement & 0x7] = accLow[delement & 0x7];
   cp2->mulStageDest = vdRegister;
 }
 

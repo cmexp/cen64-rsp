@@ -86,7 +86,7 @@ LoadPackedUBytes(void *src, void *dest) {
 
   static const uint8_t swapmask[] = {
     0x00, 0x80, 0x01, 0x80, 0x02, 0x80, 0x03, 0x80,
-    0x04, 0x80, 0x05, 0x80, 0x02, 0x80, 0x07, 0x80
+    0x04, 0x80, 0x05, 0x80, 0x06, 0x80, 0x07, 0x80
   };
 
   mask = _mm_load_si128((__m128i*) swapmask);
@@ -206,7 +206,7 @@ LoadDoubleVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
     debug("WARNING: LDV: Address not halfword aligned?");
 
   CopyVectorSlices(dmem + offset, slices);
-  memcpy(vector->slices + (element >> 1), slices + start, 8);
+  memcpy(vector->slices + (element >> 1), slices, 8);
 }
 
 /* ============================================================================
@@ -324,7 +324,7 @@ LoadPackedVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   unsigned element = memoryData->element, start;
 
   start = offset & 0x7;
-  offset &= 0xFF8;
+  /*offset &= 0xFF8;*/
 
   /* Currently dont even bother to handle either of these. */
   assert(element == 0 && "Element something other than zero?");
@@ -526,7 +526,7 @@ StoreLongVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 
   /* TODO: Shift the element right 1? */
   CopyVectorSlices(vector->slices, slices);
-  memcpy(dmem + offset, slices + (element >> 1), 4);
+  memcpy(dmem + offset, slices + element, 4);
 }
 
 /* ============================================================================
@@ -567,28 +567,8 @@ void
 StorePackedFourthVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
-  unsigned element = memoryData->element, start;
 
-  start = offset & 0x7;
-  offset &= 0xFF8;
-
-  /* Currently dont even bother to handle either of these. */
-  assert(element == 0 && "Element something other than zero?");
-
-  /* Aligned reads. */
-  if (likely(start == 0))
-    StorePackedBytes(vector->slices, dmem + offset);
-
-  /* Unaligned reads. */
-  else {
-    uint16_t slices[8];
-
-    /* TODO: FIXME. */
-    assert(0);
-
-    StorePackedBytes(dmem + offset + start, slices);
-    memcpy(vector->slices, slices, 16 - start);
-  }
+  assert(0);
 }
 
 /* ============================================================================
@@ -609,7 +589,28 @@ void
 StorePackedVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
+  unsigned element = memoryData->element, start;
 
+  start = offset & 0x7;
+  offset &= 0xFF8;
+
+  /* Currently dont even bother to handle either of these. */
+  assert(element == 0 && "Element something other than zero?");
+
+  /* Aligned reads. */
+  if (likely(start == 0))
+    StorePackedUBytes(vector->slices, dmem + offset);
+
+  /* Unaligned reads. */
+  else {
+    uint16_t slices[8];
+
+    /* TODO: FIXME. */
+    assert(0);
+
+    StorePackedUBytes(dmem + offset + start, slices);
+    memcpy(vector->slices, slices, 16 - start);
+  }
 }
 
 /* ============================================================================
@@ -622,7 +623,6 @@ StoreQuadVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   unsigned element = memoryData->element, start;
 
   start = offset & 0xF;
-  offset &= 0xFF0;
 
   /* Currently dont even bother to handle either of these. */
   assert(element == 0 && "Element something other than zero?");
@@ -640,7 +640,7 @@ StoreQuadVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
       debug("WARNING: SQV: Address not halfword aligned?");
 
     CopyVectorSlices(vector->slices, slices);
-    memcpy(dmem + offset + (start >> 1), slices, 16 - start);
+    memcpy(dmem + offset, slices, 16 - start);
   }
 }
 

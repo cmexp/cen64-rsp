@@ -479,7 +479,7 @@ StoreDoubleVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
   unsigned element = memoryData->element, start;
-  uint8_t slices[16];
+  uint16_t slices[16];
 
   start = offset & 0x7;
 

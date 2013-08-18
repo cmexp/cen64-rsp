@@ -318,7 +318,7 @@ RSPVADDC(struct RSPCP2 *cp2, uint32_t iw) {
 
   _mm_store_si128((__m128i*) vd, unsatSum);
   _mm_store_si128((__m128i*) accLow, unsatSum);
-  _mm_store_si128((__m128i*) vco, carryOut);
+  cp2->vco = _mm_movemask_epi8(carryOut) & 0xFF;
 #else
 #warning "Unimplemented function: RSPVADDC (No SSE)."
 #endif

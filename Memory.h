@@ -26,6 +26,7 @@ struct RSPMemoryData{
   uint32_t data;
 };
 
+void CopyVectorSlices(void *src, void *dest);
 void LoadByte(const struct RSPMemoryData *, uint8_t *);
 void LoadByteVector(const struct RSPMemoryData *, uint8_t *);
 void LoadByteUnsigned(const struct RSPMemoryData *, uint8_t *);

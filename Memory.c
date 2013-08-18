@@ -26,7 +26,6 @@
 #endif
 
 /* SSE-assisted helper functions. */
-static void CopyVectorSlices(void *src, void *dest);
 static void LoadPackedBytes(void *src, void *dest);
 static void LoadPackedUBytes(void *src, void *dest);
 static void StorePackedBytes(void *src, void *dest);
@@ -35,7 +34,7 @@ static void StorePackedUBytes(void *src, void *dest);
 /* ============================================================================
  *  Copies the data from src to dest, swapping every other byte.
  * ========================================================================= */
-static void
+void
 CopyVectorSlices(void *src, void *dest) {
 #ifdef USE_SSE
   __m128i temp, mask;
@@ -287,7 +286,7 @@ LoadPackedByteVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
     assert(0);
 
     LoadPackedBytes(dmem + offset + start, slices);
-    memcpy(vector->slices, slices, 16 - start);
+    memcpy(vector->slices, slices, 16);
   }
 }
 

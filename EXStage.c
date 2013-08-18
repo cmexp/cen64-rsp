@@ -617,11 +617,17 @@ RSPMFC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned source = rdexLatch->iw >> 11 & 0x1F;
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
+  uint8_t slices[16], byte1, byte2;
 
   /* Not treated the same? */
   assert(element != 0xF);
 
-  int16_t data = rsp->cp2.regs[source].slices[element >> 1];
+  int16_t data;
+  CopyVectorSlices(rsp->cp2.regs[source].slices, slices);
+  byte2 = slices[(element + 1) & 0xF];
+  byte1 = slices[element];
+
+  data = byte2 | (byte1 << 8);
   exdfLatch->result.data = (int32_t) data;
   exdfLatch->result.dest = dest;
 }

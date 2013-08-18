@@ -382,8 +382,14 @@ void
 LoadRestVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   struct RSPVector *vector = (struct RSPVector*) memoryData->target;
   unsigned offset = memoryData->offset & RSP_DMEM_MASK;
+  unsigned element = memoryData->element, start;
+  uint16_t slices[8];
 
-  assert(0);
+  start = offset & 0xF;
+  offset &= 0xFF0;
+
+  CopyVectorSlices(dmem + offset, slices);
+  memcpy(&vector->slices[8 - (start >> 1)], slices, start);
 }
 
 /* ============================================================================
@@ -667,7 +673,6 @@ StoreShortVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   start = offset & 0x1;
 
   /* Currently dont even bother to handle either of these. */
-  assert((element & 0x1) == 0 && "Element references odd byte of slice?");
   assert(element <= 14 && "Would store past the 128-bit boundary.");
 
   if ((start & 0x1) == 1)

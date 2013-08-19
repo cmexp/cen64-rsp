@@ -216,10 +216,10 @@ RSPCFC2(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
   unsigned data;
 
   switch (source & 3) {
-    case 0: data = rsp->cp2.vco; break;
-    case 1: data = rsp->cp2.vcc; break;
-    case 2: data = rsp->cp2.vce; break;
-    case 3: data = rsp->cp2.vce; break;
+    case 0: data = (int) ((short) rsp->cp2.vco); break;
+    case 1: data = (int) ((short) rsp->cp2.vcc); break;
+    case 2: data = (int) ((char)  rsp->cp2.vce); break;
+    case 3: data = (int) ((char)  rsp->cp2.vce); break;
   }
 
   exdfLatch->result.data = data;

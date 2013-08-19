@@ -219,7 +219,7 @@ LoadHalf(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
 
   /* Load and sign extend. */
   memcpy(&half, dmem + offset, sizeof(half));
-  *target = (int32_t) ByteOrderSwap16(half);
+  *target = (int32_t) ((int16_t) ByteOrderSwap16(half));
 }
 
 /* ============================================================================

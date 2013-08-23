@@ -79,8 +79,8 @@ HandleDMARead(struct RSP *rsp) {
       DMAFromDRAM(rsp->bus, rsp->dmem + destAddr, sourceAddr, 4);
     }
 
-    rsp->cp0.regs[SP_DRAM_ADDR_REG] += length + skip;
-    rsp->cp0.regs[SP_MEM_ADDR_REG] += length;
+    rsp->cp0.regs[SP_DRAM_ADDR_REG] += length;
+    rsp->cp0.regs[SP_MEM_ADDR_REG] += length + skip;
   }
 }
 

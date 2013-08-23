@@ -89,9 +89,12 @@ RSPBEQ(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
-  *rdexLatch->pc = (rs == rt)
-    ? *rdexLatch->pc - 4 + imm
-    : *rdexLatch->pc;
+  if (rs != rt)
+    return;
+
+  *rdexLatch->pc += imm - 4;
+  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -102,9 +105,12 @@ RSPBGEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
-  *rdexLatch->pc = ((int32_t) rs >= 0)
-    ? *rdexLatch->pc - 4 + imm
-    : *rdexLatch->pc;
+  if ((int32_t) rs < 0)
+    return;
+
+  *rdexLatch->pc += imm - 4;
+  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -119,9 +125,12 @@ RSPBGEZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   exdfLatch->result.data = *rdexLatch->pc;
   exdfLatch->result.dest = RSP_LINK_REGISTER;
 
-  *rdexLatch->pc = ((int32_t) rs >= 0)
-    ? *rdexLatch->pc - 4 + imm
-    : *rdexLatch->pc;
+  if ((int32_t) rs < 0)
+    return;
+
+  *rdexLatch->pc += imm - 4;
+  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -132,8 +141,12 @@ RSPBGTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
-  *rdexLatch->pc = ((int32_t) rs > 0)
-    ? imm + *rdexLatch->pc - 4: *rdexLatch->pc;
+  if ((int32_t) rs <= 0)
+    return;
+
+  *rdexLatch->pc += imm - 4;
+  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -144,8 +157,12 @@ RSPBLEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
-  *rdexLatch->pc = ((int32_t) rs <= 0)
-    ? imm + *rdexLatch->pc - 4: *rdexLatch->pc;
+  if ((int32_t) rs > 0)
+    return;
+
+  *rdexLatch->pc += imm - 4;
+  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -156,9 +173,12 @@ RSPBLTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
-  *rdexLatch->pc = ((int32_t) rs < 0)
-    ? *rdexLatch->pc - 4 + imm
-    : *rdexLatch->pc;
+  if ((int32_t) rs >= 0)
+    return;
+
+  *rdexLatch->pc += imm - 4;
+  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -174,9 +194,12 @@ RSPBLTZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   exdfLatch->result.data = *rdexLatch->pc;
   exdfLatch->result.dest = RSP_LINK_REGISTER;
 
-  *rdexLatch->pc = ((int32_t) rs < 0)
-    ? *rdexLatch->pc - 4 + imm
-    : *rdexLatch->pc;
+  if ((int32_t) rs >= 0)
+    return;
+
+  *rdexLatch->pc += imm - 4;
+  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================
@@ -187,9 +210,12 @@ RSPBNE(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
-  *rdexLatch->pc = (rs != rt)
-    ? imm + *rdexLatch->pc - 4
-    : *rdexLatch->pc;
+  if (rs == rt)
+    return;
+
+  *rdexLatch->pc += imm - 4;
+  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc |= 0x1000;
 }
 
 /* ============================================================================

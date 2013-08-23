@@ -641,6 +641,8 @@ RSPMTC2(struct RSP *rsp, uint32_t unused(rs), uint32_t rt) {
   unsigned element = rdexLatch->iw >> 7 & 0xF;
   unsigned dest = rdexLatch->iw >> 11 & 0x1F;
 
+  assert((element & 0x1) != 1);
+
   rsp->cp2.regs[dest].slices[element >> 1] = rt;
 }
 
@@ -1165,21 +1167,22 @@ RSPEXStage(struct RSP *rsp) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   const struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-  uint32_t rsRegister = GET_RS(rdexLatch->iw);
-  uint32_t rtRegister = GET_RT(rdexLatch->iw);
-  uint32_t rs, rt;
+  uint32_t rs, rt, temp = rsp->regs[dfwbLatch->result.dest];
+  uint32_t rsForwardingRegister = GET_RS(rdexLatch->iw);
+  uint32_t rtForwardingRegister = GET_RT(rdexLatch->iw);
 
-  /* Always invalidate outputs for safety. */
-  memset(&exdfLatch->result, 0, sizeof(exdfLatch->result));
+  /* Always invalidate results. */
+  exdfLatch->result.dest = 0;
 
-  /* Forward results and invoke the appropriate function. */
-  rs = (dfwbLatch->result.dest != rsRegister)
-    ? rsp->regs[rsRegister]
-    : dfwbLatch->result.data;
+  /* Forward results from DC/WB into the register file (RF). */
+  /* Copy/restore value to prevent the need for branches. */
+  rsp->regs[dfwbLatch->result.dest] = dfwbLatch->result.data;
+  rsp->regs[RSP_REGISTER_ZERO] = 0;
 
-  rt = (dfwbLatch->result.dest != rtRegister)
-    ? rsp->regs[rtRegister]
-    : dfwbLatch->result.data;
+  rs = rsp->regs[rsForwardingRegister];
+  rt = rsp->regs[rtForwardingRegister];
+
+  rsp->regs[dfwbLatch->result.dest] = temp;
 
   RSPScalarFunctionTable[rdexLatch->opcode.id](rsp, rs, rt);
 }

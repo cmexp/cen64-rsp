@@ -821,9 +821,9 @@ RSPVMACU(struct RSPCP2 *cp2, uint32_t iw) {
   uint16_t *vd = cp2->regs[vdRegister].slices;
   const uint16_t *vt = cp2->regs[vtRegister].slices;
   const uint16_t *vs = cp2->regs[vsRegister].slices;
-  uint16_t *accLow = cp2->accumulatorLow.slices;
-  uint16_t *accMid = cp2->accumulatorMid.slices;
-  uint16_t *accHigh = cp2->accumulatorHigh.slices;
+  int16_t *accLow = cp2->accumulatorLow.slices;
+  int16_t *accMid = cp2->accumulatorMid.slices;
+  int16_t *accHigh = cp2->accumulatorHigh.slices;
 
 #ifdef USE_SSE
   __m128i loProduct, hiProduct, unpackLo, unpackHi;;

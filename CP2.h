@@ -28,7 +28,7 @@ enum RSPVPRegister {
 };
 
 struct RSPVector {
-  uint16_t slices[8];
+  int16_t slices[8];
 };
 
 struct RSPCP2 {

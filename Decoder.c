@@ -12,27 +12,6 @@
 #include "Decoder.h"
 #include "Opcodes.h"
 
-/* These will only touch processor cachelines */
-/* if an invalid/undefined instruction is used. */
-static const struct RSPOpcode InvalidOpcodeTable[64] = {
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID},
-  {INVALID}, {INVALID}, {INVALID}, {INVALID}
-};
-
 /* ============================================================================
  *  Escaped opcode table: Special.
  *
@@ -283,44 +262,44 @@ static const struct RSPOpcode OpcodeTable[64] = {
 /* see a processor cacheline, so not much waste here. */
 static const struct RSPOpcodeEscape EscapeTable[64] = {
   {SpecialOpcodeTable,  0, 0x3F}, {RegImmOpcodeTable,  16, 0x1F},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
 
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
 
-  {COP0OpcodeTable,    21, 0x1F}, {InvalidOpcodeTable,  0,    0},
-  {COP2OpcodeTable,    21, 0x1F}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
+  {COP0OpcodeTable,    21, 0x1F}, {OpcodeTable,        26, 0x3F},
+  {COP2OpcodeTable,    21, 0x1F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
 
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
 
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
 
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
   
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {LWC2OpcodeTable,    11, 0x1F}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {LWC2OpcodeTable,    11, 0x1F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
 
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {SWC2OpcodeTable,    11, 0x1F}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
-  {InvalidOpcodeTable,  0,    0}, {InvalidOpcodeTable,  0,    0},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {SWC2OpcodeTable,    11, 0x1F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
+  {OpcodeTable,        26, 0x3F}, {OpcodeTable,        26, 0x3F},
 };
 
 /* ============================================================================
@@ -329,15 +308,9 @@ static const struct RSPOpcodeEscape EscapeTable[64] = {
  * ========================================================================= */
 const struct RSPOpcode*
 RSPDecodeInstruction(uint32_t iw) {
-  const struct RSPOpcode *opcode = &OpcodeTable[iw >> 26];
-
-  if (likely(opcode->id == RSP_OPCODE_INV)) {
-    const struct RSPOpcodeEscape *escape = &EscapeTable[iw >> 26];
-    uint8_t index = iw >> escape->shift & escape->mask;
-    return &escape->table[index];
-  }
-
-  return opcode;
+  const struct RSPOpcodeEscape *escape = &EscapeTable[iw >> 26];
+  uint8_t index = iw >> escape->shift & escape->mask;
+  return &escape->table[index];
 }
 
 /* ============================================================================

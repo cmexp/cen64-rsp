@@ -35,7 +35,7 @@ struct RSPCP2;
 #undef X
 
 #define X(op) void RSP##op( \
-  struct RSPCP2 *, uint32_t);
+  struct RSPCP2 *, int16_t *, const int16_t *, const int16_t *, unsigned);
 #include "VectorOpcodes.md"
 #undef X
 
@@ -43,7 +43,7 @@ typedef void (*const RSPScalarFunction)
   (struct RSP *, uint32_t, uint32_t);
 
 typedef void (*const RSPVectorFunction)
-  (struct RSPCP2 *, uint32_t);
+  (struct RSPCP2 *, int16_t *, const int16_t *, const int16_t *, unsigned);
 
 extern const RSPScalarFunction RSPScalarFunctionTable[NUM_RSP_SCALAR_OPCODES];
 extern const RSPVectorFunction RSPVectorFunctionTable[NUM_RSP_VECTOR_OPCODES];

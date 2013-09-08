@@ -200,15 +200,8 @@ _mm_mullo_epi32(__m128i a, __m128i b) {
  *  Instruction: VABS (Vector Absolute Value of Short Elements)
  * ========================================================================= */
 void
-RSPVABS(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVABS(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
@@ -235,22 +228,15 @@ RSPVABS(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVABS (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VADD (Vector Add of Short Elements)
  * ========================================================================= */
 void
-RSPVADD(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVADD(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
@@ -283,24 +269,16 @@ RSPVADD(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVADD (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VADDC (Vector Add of Short Elements with Carry)
  * ========================================================================= */
 void
-RSPVADDC(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVADDC(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
-  uint16_t *vco = cp2->carryOut.slices;
 
 #ifdef USE_SSE
   __m128i satSum, unsatSum, carryOut, equalMask;
@@ -322,22 +300,15 @@ RSPVADDC(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVADDC (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VAND (Vector AND of Short Elements)
  * ========================================================================= */
 void
-RSPVAND(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVAND(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
@@ -354,22 +325,15 @@ RSPVAND(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVAND (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VCH (Vector Select Clip Test High)
  * ========================================================================= */
 void
-RSPVCH(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVCH(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   int16_t vtData[8];
@@ -421,22 +385,15 @@ RSPVCH(struct RSPCP2 *cp2, uint32_t iw) {
   }
 
   memcpy(vd, accLow, sizeof(short) * 8);
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VCL (Vector Select Clip Test Low)
  * ========================================================================= */
 void
-RSPVCL(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVCL(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   int16_t vccOld = cp2->vcc;
@@ -492,22 +449,15 @@ RSPVCL(struct RSPCP2 *cp2, uint32_t iw) {
   cp2->vco = 0x0000;
   cp2->vce = 0x00;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VCR (Vector Select Crimp Test Low)
  * ========================================================================= */
 void
-RSPVCR(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVCR(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   int16_t vtData[8];
@@ -549,22 +499,15 @@ RSPVCR(struct RSPCP2 *cp2, uint32_t iw) {
   cp2->vco = 0x0000;
   cp2->vce = 0x00;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VEQ (Vector Select Equal)
  * ========================================================================= */
 void
-RSPVEQ(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVEQ(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   int16_t vtData[8];
@@ -596,22 +539,15 @@ RSPVEQ(struct RSPCP2 *cp2, uint32_t iw) {
   memcpy(vd, accLow, sizeof(short) * 8);
   cp2->vco = 0x0000;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VGE (Vector Select Greater Than or Equal)
  * ========================================================================= */
 void
-RSPVGE(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVGE(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   int16_t vtData[8];
@@ -644,14 +580,15 @@ RSPVGE(struct RSPCP2 *cp2, uint32_t iw) {
   memcpy(vd, accLow, sizeof(short) * 8);
   cp2->vco = 0x0000;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VINV (Invalid Vector Operation)
  * ========================================================================= */
 void
-RSPVINV(struct RSPCP2 *cp2, uint32_t unused(iw)) {
+RSPVINV(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   cp2->mulStageDest = 0;
 }
 
@@ -659,15 +596,8 @@ RSPVINV(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VLT (Vector Select Less Than)
  * ========================================================================= */
 void
-RSPVLT(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVLT(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   int16_t vtData[8];
@@ -701,22 +631,15 @@ RSPVLT(struct RSPCP2 *cp2, uint32_t iw) {
   memcpy(vd, accLow, sizeof(short) * 8);
   cp2->vco = 0x0000;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMACF (Vector Multiply-Accumulate of Signed Fractions)
  * ========================================================================= */
 void
-RSPVMACF(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMACF(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
   uint16_t *accMid = cp2->accumulatorMid.slices;
   uint16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -788,14 +711,15 @@ RSPVMACF(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: VMACF (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMACQ (Vector Accumulator Oddification)
  * ========================================================================= */
 void
-RSPVMACQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
+RSPVMACQ(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VMACQ.");
   cp2->mulStageDest = 0;
 }
@@ -804,19 +728,12 @@ RSPVMACQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VMACU (Vector Multiply-Accumulate of Unsigned Fractions)
  * ========================================================================= */
 void
-RSPVMACU(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-  unsigned i;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMACU(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
   int16_t *accMid = cp2->accumulatorMid.slices;
   int16_t *accHigh = cp2->accumulatorHigh.slices;
+  unsigned i;
 
 #ifdef USE_SSE
   __m128i loProduct, hiProduct, unpackLo, unpackHi;;
@@ -902,22 +819,15 @@ RSPVMACU(struct RSPCP2 *cp2, uint32_t iw) {
     vd[i] = result;
   }
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMADH (Vector Multiply-Accumulate of High Partial Products)
  * ========================================================================= */
 void
-RSPVMADH(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMADH(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accMid = cp2->accumulatorMid.slices;
   uint16_t *accHigh = cp2->accumulatorHigh.slices;
 
@@ -955,22 +865,15 @@ RSPVMADH(struct RSPCP2 *cp2, uint32_t iw) {
   debug("Unimplemented function: VMADH.");
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMADL (Vector Multiply-Accumulate of Lower Partial Products).
  * ========================================================================= */
 void
-RSPVMADL(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMADL(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
   uint16_t *accMid = cp2->accumulatorMid.slices;
   uint16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -1021,22 +924,15 @@ RSPVMADL(struct RSPCP2 *cp2, uint32_t iw) {
   debug("Unimplemented function: VMADL.");
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMADM (Vector Multiply-Accumulate of Mid Partial Products)
  * ========================================================================= */
 void
-RSPVMADM(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMADM(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
   uint16_t *accMid = cp2->accumulatorMid.slices;
   uint16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -1104,22 +1000,15 @@ RSPVMADM(struct RSPCP2 *cp2, uint32_t iw) {
   debug("Unimplemented function: VMADM.");
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMADN (Vector Multiply-Accumulate of Mid Partial Products)
  * ========================================================================= */
 void
-RSPVMADN(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMADN(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
   uint16_t *accMid = cp2->accumulatorMid.slices;
   uint16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -1188,22 +1077,17 @@ RSPVMADN(struct RSPCP2 *cp2, uint32_t iw) {
   debug("Unimplemented function: VMADN.");
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMOV (Vector Element Scalar Move)
  * ========================================================================= */
 void
-RSPVMOV(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned delement = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vt = cp2->regs[vtRegister].slices;
+RSPVMOV(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
+  unsigned delement = cp2->iw >> 11 & 0x1F;
 
 #ifdef USE_SSE
   __m128i vtReg = _mm_load_si128((__m128i*) vt);
@@ -1214,22 +1098,15 @@ RSPVMOV(struct RSPCP2 *cp2, uint32_t iw) {
 #endif
 
   vd[delement & 0x7] = accLow[delement & 0x7];
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMRG (Vector Select Merge)
  * ========================================================================= */
 void
-RSPVMRG(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVMRG(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   int16_t vtData[8];
@@ -1247,22 +1124,15 @@ RSPVMRG(struct RSPCP2 *cp2, uint32_t iw) {
     accLow[i] = cp2->vcc & (0x0001 << i) ? vsData[i] : vtData[i];
 
   memcpy(vd, accLow, sizeof(short) * 8);
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMUDH (Vector Multiply of High Partial Products)
  * ========================================================================= */
 void
-RSPVMUDH(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMUDH(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
   uint16_t *accMid = cp2->accumulatorMid.slices;
   uint16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -1294,22 +1164,15 @@ RSPVMUDH(struct RSPCP2 *cp2, uint32_t iw) {
   debug("Unimplemented function: VMUDH.");
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMUDL (Vector Multiply of Low Partial Products)
  * ========================================================================= */
 void
-RSPVMUDL(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMUDL(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
   uint16_t *accMid = cp2->accumulatorMid.slices;
   uint16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -1336,22 +1199,15 @@ RSPVMUDL(struct RSPCP2 *cp2, uint32_t iw) {
   debug("Unimplemented function: VMUDL.");
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMUDM (Vector Multiply of Middle Partial Products)
  * ========================================================================= */
 void
-RSPVMUDM(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMUDM(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
   uint16_t *accMid = cp2->accumulatorMid.slices;
   uint16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -1386,22 +1242,15 @@ RSPVMUDM(struct RSPCP2 *cp2, uint32_t iw) {
   debug("Unimplemented function: VMUDM.");
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMUDN (Vector Multiply of Middle Partial Products)
  * ========================================================================= */
 void
-RSPVMUDN(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVMUDN(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
   uint16_t *accMid = cp2->accumulatorMid.slices;
   uint16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -1433,22 +1282,15 @@ RSPVMUDN(struct RSPCP2 *cp2, uint32_t iw) {
   debug("Unimplemented function: VMUDN.");
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMULF (Vector Multiply of Signed Fractions)
  * ========================================================================= */
 void
-RSPVMULF(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVMULF(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
   int16_t *accMid = cp2->accumulatorMid.slices;
   int16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -1476,14 +1318,15 @@ RSPVMULF(struct RSPCP2 *cp2, uint32_t iw) {
   for (i = 0; i < 8; i++)
     vd[i] = accMid[i] + (signed short)(accMid[i] >> 15);
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VMULQ (Vector Multiply MPEG Quantization)
  * ========================================================================= */
 void
-RSPVMULQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
+RSPVMULQ(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VMULQ.");
   cp2->mulStageDest = 0;
 }
@@ -1492,15 +1335,8 @@ RSPVMULQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VMULU (Vector Multiply of Unsigned Fractions)
  * ========================================================================= */
 void
-RSPVMULU(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVMULU(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
   int16_t *accMid = cp2->accumulatorMid.slices;
   int16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -1513,7 +1349,7 @@ RSPVMULU(struct RSPCP2 *cp2, uint32_t iw) {
   vtReg = RSPGetVectorOperands(vtReg, element);
     _mm_store_si128((__m128i*) vtData, vtReg);
 #else
-#warning "Unimplemented function: RSPVMRG (No SSE)."
+#warning "Unimplemented function: RSPVMULU (No SSE)."
 #endif
 
   for (i = 0; i < 8; i++) {
@@ -1528,22 +1364,15 @@ RSPVMULU(struct RSPCP2 *cp2, uint32_t iw) {
     vd[i] = (thing < 0) ? 0 : vd[i];
   }
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VNAND (Vector NAND of Short Elements)
  * ========================================================================= */
 void
-RSPVNAND(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVNAND(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
@@ -1560,22 +1389,15 @@ RSPVNAND(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVNAND (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VNE (Vector Select Not Equal)
  * ========================================================================= */
 void
-RSPVNE(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vsData = cp2->regs[vsRegister].slices;
-  const int16_t *vtDataIn = cp2->regs[vtRegister].slices;
+RSPVNE(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   int16_t vtData[8];
@@ -1607,14 +1429,15 @@ RSPVNE(struct RSPCP2 *cp2, uint32_t iw) {
   memcpy(vd, accLow, sizeof(short) * 8);
   cp2->vco = 0x0000;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VNOP (Vector No Operation)
  * ========================================================================= */
 void
-RSPVNOP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
+RSPVNOP(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   cp2->mulStageDest = 0;
 }
 
@@ -1622,15 +1445,8 @@ RSPVNOP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VNOR (Vector NOR of Short Elements)
  * ========================================================================= */
 void
-RSPVNOR(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVNOR(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
@@ -1647,22 +1463,15 @@ RSPVNOR(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVNOR (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VOR (Vector OR of Short Elements)
  * ========================================================================= */
 void
-RSPVOR(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVOR(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
@@ -1679,22 +1488,15 @@ RSPVOR(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVOR (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VNXOR (Vector NXOR of Short Elements)
  * ========================================================================= */
 void
-RSPVNXOR(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVNXOR(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
@@ -1711,22 +1513,17 @@ RSPVNXOR(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVNXOR (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VRCP (Vector Element Scalar Reciprocal (Single Precision))
  * ========================================================================= */
 void
-RSPVRCP(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned delement = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vt = cp2->regs[vtRegister].slices;
+RSPVRCP(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
+  unsigned delement = cp2->iw >> 11 & 0x1F;
 
   unsigned int addr;
   int data;
@@ -1777,14 +1574,9 @@ FOUND_MSB:
  *  Instruction: VRCPH (Vector Element Scalar Reciprocal (Double Prec. High))
  * ========================================================================= */
 void
-RSPVRCPH(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned delement = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vt = cp2->regs[vtRegister].slices;
+RSPVRCPH(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
+  unsigned delement = cp2->iw >> 11 & 0x1F;
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   cp2->divIn = vt[element & 07] << 16;
@@ -1800,24 +1592,19 @@ RSPVRCPH(struct RSPCP2 *cp2, uint32_t iw) {
   vd[delement & 0x7] = cp2->divOut >> 16;
   cp2->doublePrecision = true;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VRCPL (Vector Element Scalar Reciprocal (Double Prec. Low))
  * ========================================================================= */
 void
-RSPVRCPL(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned delement = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
+RSPVRCPL(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
+  int16_t *accLow = cp2->accumulatorLow.slices;
+  unsigned delement = cp2->iw >> 11 & 0x1F;
   int data, fetch, shift = 32;
   unsigned addr;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vt = cp2->regs[vtRegister].slices;
-  int16_t *accLow = cp2->accumulatorLow.slices;
 
   if (cp2->doublePrecision)
     cp2->divIn |= (unsigned short) vt[element & 07];
@@ -1866,14 +1653,15 @@ FOUND_MSB:
   vd[delement & 0x7] = (short) cp2->divOut;
   cp2->doublePrecision = false;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VRNDN (Vector Accumulator DCT Rounding (Negative))
  * ========================================================================= */
 void
-RSPVRNDN(struct RSPCP2 *cp2, uint32_t unused(iw)) {
+RSPVRNDN(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VRNDN.");
   cp2->mulStageDest = 0;
 }
@@ -1882,7 +1670,8 @@ RSPVRNDN(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VRNDP (Vector Accumulator DCT Rounding (Positive))
  * ========================================================================= */
 void
-RSPVRNDP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
+RSPVRNDP(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VRNDP.");
   cp2->mulStageDest = 0;
 }
@@ -1891,7 +1680,8 @@ RSPVRNDP(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VRSQ (Vector Element Scalar SQRT Reciprocal)
  * ========================================================================= */
 void
-RSPVRSQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
+RSPVRSQ(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VRSQ.");
   cp2->mulStageDest = 0;
 }
@@ -1900,15 +1690,10 @@ RSPVRSQ(struct RSPCP2 *cp2, uint32_t unused(iw)) {
  *  Instruction: VRSQH (Vector Element Scalar SQRT Reciprocal (Double Prec. H))
  * ========================================================================= */
 void
-RSPVRSQH(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned delement = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vt = cp2->regs[vtRegister].slices;
+RSPVRSQH(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
+  unsigned delement = cp2->iw >> 11 & 0x1F;
 
   cp2->divIn = vt[element & 07] << 16;
 
@@ -1923,24 +1708,19 @@ RSPVRSQH(struct RSPCP2 *cp2, uint32_t iw) {
   vd[delement & 07] = cp2->divOut >> 16;
   cp2->doublePrecision = true;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VRSQL (Vector Element Scalar SQRT Reciprocal (Double Prec. L))
  * ========================================================================= */
 void
-RSPVRSQL(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned delement = iw >> 11 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
+RSPVRSQL(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
+  int16_t *accLow = cp2->accumulatorLow.slices;
+  unsigned delement = cp2->iw >> 11 & 0x1F;
   int data, fetch, shift = 32;
   unsigned addr;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
-  const int16_t *vt = cp2->regs[vtRegister].slices;
-  int16_t *accLow = cp2->accumulatorLow.slices;
 
   if (cp2->doublePrecision)
     cp2->divIn |= (unsigned short) vt[element & 07];
@@ -1991,18 +1771,15 @@ FOUND_MSB:
   vd[delement & 0x7] = (short) cp2->divOut;
   cp2->doublePrecision = false;
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VSAR (Vector Accumulator Read (and Write))
  * ========================================================================= */
 void
-RSPVSAR(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  int16_t *vd = cp2->regs[vdRegister].slices;
+RSPVSAR(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
   int16_t *accMid = cp2->accumulatorMid.slices;
   int16_t *accHigh = cp2->accumulatorHigh.slices;
@@ -2037,22 +1814,15 @@ RSPVSAR(struct RSPCP2 *cp2, uint32_t iw) {
       memset(vd, 0, sizeof(short) * 8);
   }
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VSUB (Vector Subtraction of Short Elements)
  * ========================================================================= */
 void
-RSPVSUB(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVSUB(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
@@ -2089,24 +1859,17 @@ RSPVSUB(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVSUB (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VSUBC (Vector Subtraction of Short Elements with Carry)
  * ========================================================================= */
 void
-RSPVSUBC(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-  unsigned vco = 0;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVSUBC(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
+  unsigned vco = 0;
 
 #ifdef USE_SSE
   __m128i satDiff, lessThanMask, notEqualMask, carryOut, vdReg;
@@ -2137,22 +1900,15 @@ RSPVSUBC(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVSUBC (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
  *  Instruction: VXOR (Vector XOR of Short Elements)
  * ========================================================================= */
 void
-RSPVXOR(struct RSPCP2 *cp2, uint32_t iw) {
-  unsigned vtRegister = iw >> 16 & 0x1F;
-  unsigned vsRegister = iw >> 11 & 0x1F;
-  unsigned vdRegister = iw >> 6 & 0x1F;
-  unsigned element = iw >> 21 & 0xF;
-
-  uint16_t *vd = cp2->regs[vdRegister].slices;
-  const uint16_t *vt = cp2->regs[vtRegister].slices;
-  const uint16_t *vs = cp2->regs[vsRegister].slices;
+RSPVXOR(struct RSPCP2 *cp2, int16_t *vd,
+  const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
@@ -2169,7 +1925,7 @@ RSPVXOR(struct RSPCP2 *cp2, uint32_t iw) {
 #warning "Unimplemented function: RSPVXOR (No SSE)."
 #endif
 
-  cp2->mulStageDest = vdRegister;
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -2186,11 +1942,22 @@ RSPInitCP2(struct RSPCP2 *cp2) {
  * ========================================================================= */
 void
 RSPCycleCP2(struct RSPCP2 *cp2) {
+  uint32_t iw = cp2->iw;
+  unsigned vtRegister = iw >> 16 & 0x1F;
+  unsigned vsRegister = iw >> 11 & 0x1F;
+  unsigned vdRegister = iw >> 6 & 0x1F;
+  unsigned element = iw >> 21 & 0xF;
+
+  const int16_t *vt = cp2->regs[vtRegister].slices;
+  const int16_t *vs = cp2->regs[vsRegister].slices;
+  int16_t *vd = cp2->regs[vdRegister].slices;
+
   cp2->locked[cp2->accStageDest] = false;     /* "WB" */
   cp2->accStageDest = cp2->mulStageDest;      /* "DF" */
   cp2->mulStageDest = 0;                      /* "EX" */
 
-  RSPVectorFunctionTable[cp2->opcode.id](cp2, cp2->iw);
+  RSPVectorFunctionTable[cp2->opcode.id](cp2, vd, vs, vt, element);
+  assert(cp2->mulStageDest >= 0 && cp2->mulStageDest < 32);
 
 #ifndef NDEBUG
   cp2->counts[cp2->opcode.id]++;

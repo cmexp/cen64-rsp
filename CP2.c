@@ -213,28 +213,22 @@ RSPVABS(struct RSPCP2 *cp2, uint32_t iw) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
-  __m128i lessThanMask, equalsMask;
-  __m128i vsReg, vtReg, vdReg;
+  __m128i valLessThan, signLessThan, resultLessThan;
+  __m128i vtReg, vsReg, vdReg;
 
   vtReg = _mm_load_si128((__m128i*) vt);
   vsReg = _mm_load_si128((__m128i*) vs);
   vtReg = RSPGetVectorOperands(vtReg, element);
+  vdReg = _mm_sign_epi16(vtReg, vsReg);
 
-  /* If the VS slice == 0, zero out the VT slice. */
-  equalsMask = _mm_cmpeq_epi16(vsReg, _mm_setzero_si128());
-  equalsMask = _mm_cmpeq_epi16(equalsMask, equalsMask);
-  vtReg = _mm_and_si128(vtReg, equalsMask);
-  equalsMask = _mm_abs_epi16(vtReg);
-  equalsMask = _mm_srli_epi16(equalsMask, 15);
-  vdReg = _mm_xor_si128(vtReg, equalsMask);
-  vdReg = _mm_sub_epi16(_mm_setzero_si128(), vdReg);
+  /* _mm_sign_epi16 will not fixup INT16_MIN; the RSP will! */
+  resultLessThan = _mm_cmplt_epi16(vdReg, _mm_setzero_si128());
+  signLessThan = _mm_cmplt_epi16(vsReg, _mm_setzero_si128());
+  valLessThan = _mm_cmplt_epi16(vtReg, _mm_setzero_si128());
 
-  /* Now mix all three (> 0, == 0, < 0) cases together. */
-  lessThanMask = _mm_cmplt_epi16(vsReg, _mm_setzero_si128());
-  vdReg = _mm_and_si128(vdReg, lessThanMask);
-  lessThanMask = _mm_cmpeq_epi16(lessThanMask, _mm_setzero_si128());
-  vtReg = _mm_and_si128(vtReg, lessThanMask);
-  vdReg = _mm_or_si128(vdReg, vtReg);
+  valLessThan = _mm_and_si128(valLessThan, signLessThan);
+  resultLessThan = _mm_and_si128(valLessThan, resultLessThan);
+  vdReg = _mm_xor_si128(vdReg, resultLessThan);
 
   _mm_store_si128((__m128i*) vd, vdReg);
   _mm_store_si128((__m128i*) accLow, vdReg);

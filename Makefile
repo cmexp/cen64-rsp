@@ -55,7 +55,7 @@ endif
 AR = ar
 DOXYGEN = doxygen
 
-RSP_FLAGS = -DLITTLE_ENDIAN -DUSE_SSE -DSSE2_ONLY
+RSP_FLAGS = -DLITTLE_ENDIAN -DUSE_SSE -DSSSE3_ONLY
 WARNINGS = -Wall -Wextra -pedantic
 
 COMMON_CFLAGS = $(WARNINGS) $(RSP_FLAGS) -std=c99 -march=native -I.

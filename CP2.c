@@ -25,8 +25,7 @@
 #endif
 
 #ifdef USE_SSE
-#ifdef SSE2_ONLY
-/* I lied; SSSE3... */
+#ifdef SSSE3_ONLY
 #include <tmmintrin.h>
 #else
 #include <smmintrin.h>
@@ -53,7 +52,7 @@ RSPClampLowToVal(__m128i vaccLow, __m128i vaccMid, __m128i vaccHigh) {
   useValMask = _mm_cmpeq_epi16(useValMask, _mm_setzero_si128());
   posVal = _mm_and_si128(useValMask, vaccLow);
 
-#ifdef SSE2_ONLY
+#ifdef SSSE3_ONLY
   negVal = _mm_and_si128(negCheck, negVal);
   posVal = _mm_andnot_si128(negCheck, posVal);
   return _mm_or_si128(negVal, posVal);
@@ -112,7 +111,7 @@ RSPGetVectorOperands(__m128i vt, unsigned element) {
  * ========================================================================= */
 static __m128i
 RSPPackLo32to16(__m128i vectorLow, __m128i vectorHigh) {
-#ifdef SSE2_ONLY
+#ifdef SSSE3_ONLY
   vectorLow = _mm_slli_epi32(vectorLow, 16);
   vectorHigh = _mm_slli_epi32(vectorHigh, 16);
   vectorLow = _mm_srai_epi32(vectorLow, 16);
@@ -179,7 +178,7 @@ _mm_nxor_si128(__m128i a, __m128i b) {
  *  _mm_mullo_epi32: SSE2 lacks _mm_mullo_epi32, define it manually.
  *  TODO/WARNING/DISCLAIMER: Assumes one argument is positive.
  * ========================================================================= */
-#ifdef SSE2_ONLY
+#ifdef SSSE3_ONLY
 static __m128i
 _mm_mullo_epi32(__m128i a, __m128i b) {
   __m128i a4 = _mm_srli_si128(a, 4);
@@ -744,7 +743,7 @@ RSPVMACF(struct RSPCP2 *cp2, uint32_t iw) {
   loProduct = _mm_slli_epi32(loProduct, 1);
   hiProduct = _mm_slli_epi32(hiProduct, 1);
 
-#ifdef SSE2_ONLY
+#ifdef SSSE3_ONLY
   vdRegLo = _mm_srli_epi32(loProduct, 16);
   vdRegHi = _mm_srli_epi32(hiProduct, 16);
   vdRegLo = _mm_slli_epi32(vdRegLo, 16);
@@ -841,7 +840,7 @@ RSPVMACU(struct RSPCP2 *cp2, uint32_t iw) {
   loProduct = _mm_slli_epi32(loProduct, 1);
   hiProduct = _mm_slli_epi32(hiProduct, 1);
 
-#ifdef SSE2_ONLY
+#ifdef SSSE3_ONLY
   vdRegLo = _mm_srli_epi32(loProduct, 16);
   vdRegHi = _mm_srli_epi32(hiProduct, 16);
   vdRegLo = _mm_slli_epi32(vdRegLo, 16);
@@ -1061,7 +1060,7 @@ RSPVMADM(struct RSPCP2 *cp2, uint32_t iw) {
   loProduct = _mm_mullo_epi32(vsRegLo, vtRegLo);
   hiProduct = _mm_mullo_epi32(vsRegHi, vtRegHi);
 
-#ifdef SSE2_ONLY
+#ifdef SSSE3_ONLY
   vdRegLo = _mm_srli_epi32(loProduct, 16);
   vdRegHi = _mm_srli_epi32(hiProduct, 16);
   vdRegLo = _mm_slli_epi32(vdRegLo, 16);
@@ -1144,7 +1143,7 @@ RSPVMADN(struct RSPCP2 *cp2, uint32_t iw) {
   loProduct = _mm_mullo_epi32(vsRegLo, vtRegLo);
   hiProduct = _mm_mullo_epi32(vsRegHi, vtRegHi);
 
-#ifdef SSE2_ONLY
+#ifdef SSSE3_ONLY
   vdRegLo = _mm_srli_epi32(loProduct, 16);
   vdRegHi = _mm_srli_epi32(hiProduct, 16);
   vdRegLo = _mm_slli_epi32(vdRegLo, 16);

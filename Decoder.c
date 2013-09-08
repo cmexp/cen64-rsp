@@ -186,6 +186,7 @@ static const struct RSPOpcode LWC2OpcodeTable[32] = {
   {INVALID}, {INVALID}, {INVALID}, {INVALID},
   {INVALID}, {INVALID}, {INVALID}, {INVALID},
   {INVALID}, {INVALID}, {INVALID}, {INVALID},
+  {INVALID}, {INVALID}, {INVALID}, {INVALID},
   {INVALID}, {INVALID}, {INVALID}, {INVALID}
 };
 
@@ -207,6 +208,7 @@ static const struct RSPOpcode SWC2OpcodeTable[32] = {
   {SBV},     {SSV},     {SLV},     {SDV},
   {SQV},     {SRV},     {SPV},     {SUV},
   {SHV},     {SFV},     {SWV},     {STV},
+  {INVALID}, {INVALID}, {INVALID}, {INVALID},
   {INVALID}, {INVALID}, {INVALID}, {INVALID},
   {INVALID}, {INVALID}, {INVALID}, {INVALID},
   {INVALID}, {INVALID}, {INVALID}, {INVALID},

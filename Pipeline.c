@@ -89,7 +89,7 @@ CycleRSP(struct RSP *rsp) {
     return;
 
   RSPWBStage(dfwbLatch, rsp->regs, &rsp->cp2);
-  RSPDFStage(exdfLatch, dfwbLatch, rsp->dmem, rsp->cp2.regs);
+  RSPDFStage(exdfLatch, dfwbLatch, rsp->dmem);
 
   /* Execute and bump opcode counters. */
   uint32_t pcBeforeExecute = ifrdLatch->pc;

@@ -337,6 +337,7 @@ RSPLB(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
+  exdfLatch->memoryData.target = &exdfLatch->result.data;
   exdfLatch->memoryData.function = &LoadByte;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -353,6 +354,7 @@ RSPLBU(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
+  exdfLatch->memoryData.target = &exdfLatch->result.data;
   exdfLatch->memoryData.function = &LoadByteUnsigned;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -370,7 +372,7 @@ RSPLBV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadByteVector;
   exdfLatch->memoryData.offset = rs + offset;
   exdfLatch->memoryData.element = element;
@@ -389,7 +391,7 @@ RSPLDV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadDoubleVector;
   exdfLatch->memoryData.offset = rs + (offset << 3);
   exdfLatch->memoryData.element = element;
@@ -408,7 +410,7 @@ RSPLFV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadPackedFourthVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -426,6 +428,7 @@ RSPLH(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
+  exdfLatch->memoryData.target = &exdfLatch->result.data;
   exdfLatch->memoryData.function = &LoadHalf;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -442,6 +445,7 @@ RSPLHU(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
+  exdfLatch->memoryData.target = &exdfLatch->result.data;
   exdfLatch->memoryData.function = &LoadHalfUnsigned;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -459,7 +463,7 @@ RSPLHV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadPackedHalfVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -478,7 +482,7 @@ RSPLLV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadLongVector;
   exdfLatch->memoryData.offset = rs + (offset << 2);
   exdfLatch->memoryData.element = element;
@@ -497,7 +501,7 @@ RSPLPV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadPackedByteVector;
   exdfLatch->memoryData.offset = rs + (offset << 3);
   exdfLatch->memoryData.element = element;
@@ -516,7 +520,7 @@ RSPLQV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadQuadVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -535,7 +539,7 @@ RSPLRV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadRestVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -554,7 +558,7 @@ RSPLSV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadShortVector;
   exdfLatch->memoryData.offset = rs + (offset << 1);
   exdfLatch->memoryData.element = element;
@@ -575,7 +579,7 @@ RSPLTV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 
   assert((dest & 7) == 0 && "STV: Invalid `vt` for transpose specified.");
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadTransposeVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -610,7 +614,7 @@ RSPLUV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &LoadPackedVector;
   exdfLatch->memoryData.offset = rs + (offset << 3);
   exdfLatch->memoryData.element = element;
@@ -628,6 +632,7 @@ RSPLW(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
+  exdfLatch->memoryData.target = &exdfLatch->result.data;
   exdfLatch->memoryData.function = &LoadWord;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -750,7 +755,7 @@ RSPSBV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StoreByteVector;
   exdfLatch->memoryData.offset = rs + offset;
   exdfLatch->memoryData.element = element;
@@ -769,7 +774,7 @@ RSPSDV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StoreDoubleVector;
   exdfLatch->memoryData.offset = rs + (offset << 3);
   exdfLatch->memoryData.element = element;
@@ -788,7 +793,7 @@ RSPSFV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StorePackedFourthVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -822,7 +827,7 @@ RSPSHV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StorePackedHalfVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -871,7 +876,7 @@ RSPSLV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StoreLongVector;
   exdfLatch->memoryData.offset = rs + (offset << 2);
   exdfLatch->memoryData.element = element;
@@ -948,7 +953,7 @@ RSPSPV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StorePackedByteVector;
   exdfLatch->memoryData.offset = rs + (offset << 3);
   exdfLatch->memoryData.element = element;
@@ -967,7 +972,7 @@ RSPSQV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StoreQuadVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -1046,7 +1051,7 @@ RSPSRV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StoreRestVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -1065,7 +1070,7 @@ RSPSSV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StoreShortVector;
   exdfLatch->memoryData.offset = rs + (offset << 1);
   exdfLatch->memoryData.element = element;
@@ -1088,7 +1093,7 @@ RSPSTV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   assert((dest & 7) == 0 && "STV: Invalid `vt` for transpose specified.");
   assert((element & 0x1) == 0 && "Element references odd byte of slice?");
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(NUM_RSP_VP_REGISTERS);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[NUM_RSP_VP_REGISTERS];
   exdfLatch->memoryData.function = &StoreTransposeVector;
   exdfLatch->memoryData.offset = rs + (offset << 4);
   exdfLatch->memoryData.element = element;
@@ -1114,7 +1119,7 @@ RSPSUV(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   unsigned offset = rdexLatch->iw & 0x7F;
   offset |= -(offset & 0x0040);
 
-  exdfLatch->result.dest = SET_VECTOR_DEST(dest);
+  exdfLatch->memoryData.target = &rsp->cp2.regs[dest];
   exdfLatch->memoryData.function = &StorePackedVector;
   exdfLatch->memoryData.offset = rs + (offset << 3);
   exdfLatch->memoryData.element = element;

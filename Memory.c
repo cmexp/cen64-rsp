@@ -201,8 +201,9 @@ LoadDoubleVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   assert((element & 0x1) == 0 && "Element references odd byte of slice?");
   assert(element <= 8 && "Would load past the 128-bit boundary.");
 
-  if ((start & 0x1) == 1)
+  if ((start & 0x1) == 1) {
     debug("WARNING: LDV: Address not halfword aligned?");
+  }
 
   CopyVectorSlices(dmem + offset, slices);
   memcpy(vector->slices + (element >> 1), slices, 8);
@@ -252,8 +253,9 @@ LoadLongVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   assert((element & 0x1) == 0 && "Element references odd byte of slice?");
   assert(element <= 12 && "Would load past the 128-bit boundary.");
 
-  if ((start & 0x1) == 1)
+  if ((start & 0x1) == 1) {
     debug("WARNING: LLV: Address not halfword aligned?");
+  }
 
   CopyVectorSlices(dmem + offset, slices);
   memcpy(vector->slices + (element >> 1), slices + start, 4);
@@ -367,8 +369,9 @@ LoadQuadVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   else {
     uint16_t slices[8];
 
-    if ((start & 0x1) == 1)
+    if ((start & 0x1) == 1) {
       debug("WARNING: LQV: Address not halfword aligned?");
+    }
 
     CopyVectorSlices(dmem + offset, slices);
     memcpy(vector->slices, slices + (start >> 1), 16 - start);
@@ -408,8 +411,9 @@ LoadShortVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   assert((element & 0x1) == 0 && "Element references odd byte of slice?");
   assert(element <= 14 && "Would load past the 128-bit boundary.");
 
-  if ((start & 0x1) == 1)
+  if ((start & 0x1) == 1) {
     debug("WARNING: LSV: Address not halfword aligned?");
+  }
 
   CopyVectorSlices(dmem + offset, slices);
   memcpy(vector->slices + (element >> 1), slices + start, 2);
@@ -492,8 +496,9 @@ StoreDoubleVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   assert((element & 0x1) == 0 && "Element references odd byte of slice?");
   assert(element <= 8 && "Would store past the 128-bit boundary.");
 
-  if ((start & 0x1) == 1)
+  if ((start & 0x1) == 1) {
     debug("WARNING: SDV: Address not halfword aligned?");
+  }
 
   CopyVectorSlices(vector->slices, slices);
   memcpy(dmem + offset, slices + (element >> 1), 8);
@@ -526,8 +531,9 @@ StoreLongVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   assert((element & 0x1) == 0 && "Element references odd byte of slice?");
   assert(element <= 12 && "Would store past the 128-bit boundary.");
 
-  if ((start & 0x1) == 1)
+  if ((start & 0x1) == 1) {
     debug("WARNING: SLV: Address not halfword aligned?");
+  }
 
   /* TODO: Shift the element right 1? */
   CopyVectorSlices(vector->slices, slices);
@@ -641,8 +647,9 @@ StoreQuadVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   else {
     uint16_t slices[8];
 
-    if ((start & 0x1) == 1)
+    if ((start & 0x1) == 1) {
       debug("WARNING: SQV: Address not halfword aligned?");
+    }
 
     CopyVectorSlices(vector->slices, slices);
     memcpy(dmem + offset, slices, 16 - start);
@@ -675,8 +682,9 @@ StoreShortVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   /* Currently dont even bother to handle either of these. */
   assert(element <= 14 && "Would store past the 128-bit boundary.");
 
-  if ((start & 0x1) == 1)
+  if ((start & 0x1) == 1) {
     debug("WARNING: SSV: Address not halfword aligned?");
+  }
 
   /* TODO: Shift the element right 1? */
   CopyVectorSlices(vector->slices, slices);

@@ -25,17 +25,11 @@
  *  RSPDFStage: Reads or writes data from or to DMEM.
  * ========================================================================= */
 void
-RSPDFStage(struct RSPEXDFLatch *exdfLatch, struct RSPDFWBLatch *dfwbLatch,
-  uint8_t dmem[], struct RSPVector vregs[]) {
+RSPDFStage(struct RSPEXDFLatch *exdfLatch,
+  struct RSPDFWBLatch *dfwbLatch, uint8_t dmem[]) {
   RSPMemoryFunction function;
 
   if ((function = exdfLatch->memoryData.function) != NULL) {
-    unsigned dest = exdfLatch->result.dest;
-
-    exdfLatch->memoryData.target = IS_VECTOR_DEST(dest)
-      ? (void*) (&vregs[GET_VECTOR_DEST(exdfLatch->result.dest)])
-      : (void*) (&exdfLatch->result.data);
-
     function(&exdfLatch->memoryData, dmem);
     exdfLatch->memoryData.function = NULL;
   }

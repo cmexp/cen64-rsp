@@ -14,12 +14,6 @@
 #include "Decoder.h"
 #include "Memory.h"
 
-/* Some of the scalar functional units operate on vector registers. */
-/* We encode the destination of the latter as # + NUM_RSP_SP_REGISTERS. */
-#define GET_VECTOR_DEST(x) ((x) - NUM_RSP_REGISTERS)
-#define IS_VECTOR_DEST(x) (x >= NUM_RSP_REGISTERS)
-#define SET_VECTOR_DEST(x) ((x) + NUM_RSP_REGISTERS)
-
 enum RSPPipelineStages {
   RSP_PIPELINE_STAGE_IF,
   RSP_PIPELINE_STAGE_RD,

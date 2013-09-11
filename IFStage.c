@@ -47,6 +47,6 @@ RSPIFStage(struct RSPIFRDLatch *ifrdLatch, const uint8_t mem[]) {
 
   /* Fetch a pair of instructions, bump the PC. */
   FetchInstructions(mem + ifrdLatch->pc, firstIW, secondIW);
-  ifrdLatch->pc = ((pc + 4) & 0xFFF) | 0x1000;
+  ifrdLatch->pc = ((pc + 4) & 0xFFC) | 0x1000;
 }
 

@@ -93,7 +93,7 @@ RSPBEQ(struct RSP *rsp, uint32_t rs, uint32_t rt) {
     return;
 
   *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
 }
 
@@ -109,7 +109,7 @@ RSPBGEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
     return;
 
   *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
 }
 
@@ -129,7 +129,7 @@ RSPBGEZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
     return;
 
   *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
 }
 
@@ -145,7 +145,7 @@ RSPBGTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
     return;
 
   *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
 }
 
@@ -161,7 +161,7 @@ RSPBLEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
     return;
 
   *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
 }
 
@@ -177,7 +177,7 @@ RSPBLTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
     return;
 
   *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
 }
 
@@ -198,7 +198,7 @@ RSPBLTZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
     return;
 
   *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
 }
 
@@ -214,7 +214,7 @@ RSPBNE(struct RSP *rsp, uint32_t rs, uint32_t rt) {
     return;
 
   *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFF;
+  *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
 }
 
@@ -321,7 +321,7 @@ void
 RSPJR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
 
-  *rdexLatch->pc = rs & 0xFFF;
+  *rdexLatch->pc = rs & 0xFFC;
   *rdexLatch->pc |= 0x1000;
 }
 

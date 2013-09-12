@@ -22,6 +22,14 @@
 #include <string.h>
 #endif
 
+#ifndef USE_SSE
+const char *RSPBuildType = "ANSI C";
+#elif defined(SSSE3_ONLY)
+const char *RSPBuildType = "SSSE3";
+#else
+const char *RSPBuildType = "SSE4.1";
+#endif
+
 static void InitRSP(struct RSP *);
 
 /* ============================================================================

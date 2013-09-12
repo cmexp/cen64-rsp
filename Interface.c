@@ -64,8 +64,8 @@ HandleDMARead(struct RSP *rsp) {
     length = 0x1000 - (rsp->cp0.regs[SP_MEM_ADDR_REG] & 0xFFF);
 
   for (i = 0; i <= count; i++) {
-    uint32_t source = rsp->cp0.regs[SP_DRAM_ADDR_REG] & 0xFFFFFF;
-    uint32_t dest = rsp->cp0.regs[SP_MEM_ADDR_REG] & 0x1FFF;
+    uint32_t source = rsp->cp0.regs[SP_DRAM_ADDR_REG] & 0x7FFFFC;
+    uint32_t dest = rsp->cp0.regs[SP_MEM_ADDR_REG] & 0x1FFC;
 
     debug("DMA | Request: Read from DRAM.");
     debugarg("DMA | DEST   : [0x%.8x].", dest);
@@ -73,8 +73,8 @@ HandleDMARead(struct RSP *rsp) {
     debugarg("DMA | LENGTH : [0x%.8x].", length);
 
     for (j = 0; j < length; j += 4) {
-      uint32_t sourceAddr = (source + j) & 0xFFFFFF;
-      uint32_t destAddr = (dest + j) & 0x1FFF;
+      uint32_t sourceAddr = (source + j) & 0x7FFFFC;
+      uint32_t destAddr = (dest + j) & 0x1FFC;
 
       DMAFromDRAM(rsp->bus, rsp->dmem + destAddr, sourceAddr, 4);
     }
@@ -113,8 +113,8 @@ HandleDMAWrite(struct RSP *rsp) {
     length = 0x1000 - (rsp->cp0.regs[SP_MEM_ADDR_REG] & 0xFFF);
 
   for (i = 0; i <= count; i++) {
-    uint32_t dest = rsp->cp0.regs[SP_DRAM_ADDR_REG] & 0xFFFFFF;
-    uint32_t source = rsp->cp0.regs[SP_MEM_ADDR_REG] & 0x1FFF;
+    uint32_t dest = rsp->cp0.regs[SP_DRAM_ADDR_REG] & 0x7FFFFC;
+    uint32_t source = rsp->cp0.regs[SP_MEM_ADDR_REG] & 0x1FFC;
 
     debug("DMA | Request: Write to DRAM.");
     debugarg("DMA | DEST   : [0x%.8x].", dest);
@@ -122,8 +122,8 @@ HandleDMAWrite(struct RSP *rsp) {
     debugarg("DMA | LENGTH : [0x%.8x].", length);
 
     for (j = 0; j < length; j += 4) {
-      uint32_t sourceAddr = (source + j) & 0x1FFF;
-      uint32_t destAddr = (dest + j) & 0xFFFFFF;
+      uint32_t sourceAddr = (source + j) & 0x1FFC;
+      uint32_t destAddr = (dest + j) & 0x7FFFFC;
 
       DMAToDRAM(rsp->bus, destAddr, rsp->dmem + sourceAddr, 4);
     }

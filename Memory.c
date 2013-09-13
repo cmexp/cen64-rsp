@@ -167,8 +167,7 @@ LoadByteVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   uint8_t *slice = (uint8_t*) vector->slices;
   unsigned element = memoryData->element;
 
-  /* TODO: Check. */
-  assert(0);
+  slice[element ^ 1] = dmem[offset];
 }
 
 /* ============================================================================

@@ -179,6 +179,7 @@ _mm_nxor_si128(__m128i a, __m128i b) {
  *  TODO/WARNING/DISCLAIMER: Assumes one argument is positive.
  * ========================================================================= */
 #ifdef SSSE3_ONLY
+#ifndef __APPLE__
 static __m128i
 _mm_mullo_epi32(__m128i a, __m128i b) {
   __m128i a4 = _mm_srli_si128(a, 4);
@@ -193,6 +194,7 @@ _mm_mullo_epi32(__m128i a, __m128i b) {
 
   return _mm_or_si128(baMask, b4a4MaskShift);
 }
+#endif
 #endif
 #endif
 

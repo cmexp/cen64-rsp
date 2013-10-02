@@ -1886,12 +1886,8 @@ RSPVSUBC(struct RSPCP2 *cp2, int16_t *vd,
   lessThanMask = _mm_cmpeq_epi16(satDiff, _mm_setzero_si128());
   lessThanMask = _mm_and_si128(lessThanMask, notEqualMask);
 
-  carryOut = _mm_packs_epi16(lessThanMask, lessThanMask);
-  vco = _mm_movemask_epi8(carryOut) & 0xFF;
-
-  /* Set notequal flag as long as difference != 0. */
-  carryOut = _mm_packs_epi16(notEqualMask, notEqualMask);
-  vco |= _mm_movemask_epi8(carryOut) & 0xFF00;
+  carryOut = _mm_packs_epi16(lessThanMask, notEqualMask);
+  vco = _mm_movemask_epi8(carryOut);
 
   _mm_store_si128((__m128i*) vd, vdReg);
   _mm_store_si128((__m128i*) accLow, vdReg);

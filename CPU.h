@@ -50,6 +50,9 @@ struct RSP {
 
   struct RSPPipeline pipeline;
   struct RDP *rdp;
+
+  /* Various status flags. */
+  uint8_t didBranch;
 };
 
 struct RSP *CreateRSP(void);

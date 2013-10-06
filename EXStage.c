@@ -95,6 +95,7 @@ RSPBEQ(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   *rdexLatch->pc += imm - 4;
   *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -111,6 +112,7 @@ RSPBGEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   *rdexLatch->pc += imm - 4;
   *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -131,6 +133,7 @@ RSPBGEZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   *rdexLatch->pc += imm - 4;
   *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -147,6 +150,7 @@ RSPBGTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   *rdexLatch->pc += imm - 4;
   *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -163,6 +167,7 @@ RSPBLEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   *rdexLatch->pc += imm - 4;
   *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -179,6 +184,7 @@ RSPBLTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   *rdexLatch->pc += imm - 4;
   *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -200,6 +206,7 @@ RSPBLTZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   *rdexLatch->pc += imm - 4;
   *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -216,6 +223,7 @@ RSPBNE(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   *rdexLatch->pc += imm - 4;
   *rdexLatch->pc &= 0xFFC;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -284,6 +292,7 @@ RSPJ(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
 
   *rdexLatch->pc = (rdexLatch->iw & 0x3FF) << 2;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -298,6 +307,7 @@ RSPJAL(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
   exdfLatch->result.dest = RSP_LINK_REGISTER;
   *rdexLatch->pc = (rdexLatch->iw & 0x3FF) << 2;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -312,6 +322,7 @@ RSPJALR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   exdfLatch->result.dest = RSP_LINK_REGISTER;
   *rdexLatch->pc = rs;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -323,6 +334,7 @@ RSPJR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 
   *rdexLatch->pc = rs & 0xFFC;
   *rdexLatch->pc |= 0x1000;
+  rsp->didBranch = 1;
 }
 
 /* ============================================================================
@@ -1204,6 +1216,7 @@ RSPEXStage(struct RSP *rsp) {
 
   /* Always invalidate results. */
   exdfLatch->result.dest = 0;
+  rsp->didBranch = 0;
 
   /* Forward results from DC/WB into the register file (RF). */
   /* Copy/restore value to prevent the need for branches. */

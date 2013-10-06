@@ -92,17 +92,15 @@ CycleRSP(struct RSP *rsp) {
   RSPDFStage(exdfLatch, dfwbLatch, rsp->dmem);
 
   /* Execute and bump opcode counters. */
-  uint32_t pcBeforeExecute = ifrdLatch->pc;
-  RSPEXStage(rsp);
   RSPCycleCP2(&rsp->cp2);
+  RSPEXStage(rsp);
 
 #ifndef NDEBUG
   rsp->pipeline.counts[exOpcode.id]++;
 #endif
 
   /* Decode the instructions sitting in the issue queue. */
-  bool didBranch = pcBeforeExecute != ifrdLatch->pc;
-  RSPRDStage(ifrdLatch, rdexLatch, didBranch, &rsp->cp2);
+  RSPRDStage(ifrdLatch, rdexLatch, rsp->didBranch, &rsp->cp2);
 
   /* Check for stall conditions. */
   bool ldStoreStall, ldUseStall;

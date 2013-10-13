@@ -9,6 +9,7 @@
  *  file 'LICENSE', which is part of this source code package.
  * ========================================================================= */
 #include "Common.h"
+#include "CPU.h"
 #include "Decoder.h"
 #include "Opcodes.h"
 #include "RDStage.h"
@@ -44,8 +45,9 @@ IsVector(const struct RSPOpcode *opcode) {
  *  RSPRDStage: Decodes the instruction words and checks for stalls.
  * ========================================================================= */
 void
-RSPRDStage(/*const*/ struct RSPIFRDLatch *ifrdLatch,
-  struct RSPRDEXLatch *rdexLatch, bool didBranch, struct RSPCP2 *cp2) {
+RSPRDStage(struct RSP *rsp) {
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
+  struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   bool isFirstIWBranchType, isFirstIWVectorType, inDelaySlot;
   const struct RSPOpcode *firstOpcode, *secondOpcode;
   uint32_t fetchedPC = ifrdLatch->fetchedPC;
@@ -90,9 +92,9 @@ RSPRDStage(/*const*/ struct RSPIFRDLatch *ifrdLatch,
 
   /* Cannot dual issue. */
   if (isFirstIWVectorType) {
-    cp2->iw = ifrdLatch->firstIW;
+    rsp->cp2.iw = ifrdLatch->firstIW;
 
-    cp2->opcode = *RSPDecodeVectorInstruction(cp2->iw);
+    rsp->cp2.opcode = *RSPDecodeVectorInstruction(rsp->cp2.iw);
     RSPInvalidateOpcode(&rdexLatch->opcode);
   }
 
@@ -100,7 +102,7 @@ RSPRDStage(/*const*/ struct RSPIFRDLatch *ifrdLatch,
     rdexLatch->iw = ifrdLatch->firstIW;
 
     rdexLatch->opcode = *firstOpcode;
-    RSPInvalidateVectorOpcode(&cp2->opcode);
+    RSPInvalidateVectorOpcode(&rsp->cp2.opcode);
   }
 }
 

@@ -14,7 +14,7 @@
 #include "CP2.h"
 #include "Pipeline.h"
 
-void RSPDFStage(struct RSPEXDFLatch *, struct RSPDFWBLatch *, uint8_t []);
+void RSPDFStage(struct RSP *);
 
 #endif
 

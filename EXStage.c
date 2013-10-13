@@ -1225,7 +1225,6 @@ RSPEXStage(struct RSP *rsp) {
 
   rs = rsp->regs[rsForwardingRegister];
   rt = rsp->regs[rtForwardingRegister];
-
   rsp->regs[dfwbLatch->result.dest] = temp;
 
   RSPScalarFunctionTable[rdexLatch->opcode.id](rsp, rs, rt);

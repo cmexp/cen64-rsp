@@ -73,48 +73,42 @@ IsLoadUseStall(const struct RSPRDEXLatch *rdexLatch, uint32_t exInfoFlags,
  * ========================================================================= */
 void
 CycleRSP(struct RSP *rsp) {
-  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
-  struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
-  struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-  struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
+  bool ldStoreStall, ldUseStall;
 
   /* Generate outputs for later stages. */ 
-  struct RSPOpcode dfOpcode = exdfLatch->opcode;
-  struct RSPOpcode exOpcode = rdexLatch->opcode;
-
-  assert(rsp->bus != NULL);
+  struct RSPOpcode dfOpcode = rsp->pipeline.exdfLatch.opcode;
+  struct RSPOpcode exOpcode = rsp->pipeline.rdexLatch.opcode;
+  struct RSPOpcode rfOpcode;
 
   /* If we're halted, just bail out. */
   if (rsp->cp0.regs[SP_STATUS_REG] & 0x1)
     return;
 
-  RSPWBStage(dfwbLatch, rsp->regs, &rsp->cp2);
-  RSPDFStage(exdfLatch, dfwbLatch, rsp->dmem);
+  RSPWBStage(rsp);
+  RSPDFStage(rsp);
 
   /* Execute and bump opcode counters. */
   RSPCycleCP2(&rsp->cp2);
   RSPEXStage(rsp);
+  RSPRDStage(rsp);
 
 #ifndef NDEBUG
   rsp->pipeline.counts[exOpcode.id]++;
 #endif
 
-  /* Decode the instructions sitting in the issue queue. */
-  RSPRDStage(ifrdLatch, rdexLatch, rsp->didBranch, &rsp->cp2);
-
   /* Check for stall conditions. */
-  bool ldStoreStall, ldUseStall;
+  rfOpcode = rsp->pipeline.rdexLatch.opcode;
 
-  struct RSPOpcode rfOpcode = rdexLatch->opcode;
   ldStoreStall = IsLoadStoreStall(rfOpcode.infoFlags, dfOpcode.infoFlags);
-  ldUseStall = IsLoadUseStall(rdexLatch, exOpcode.infoFlags, exOpcode.infoFlags,
-    exdfLatch->result.dest, dfwbLatch->result.dest);
+  ldUseStall = IsLoadUseStall(&rsp->pipeline.rdexLatch, exOpcode.infoFlags,
+    exOpcode.infoFlags, rsp->pipeline.exdfLatch.result.dest,
+    rsp->pipeline.dfwbLatch.result.dest);
 
   /* Fetch if there were no stalls. */
   if (!ldStoreStall && !ldUseStall)
-    RSPIFStage(ifrdLatch, rsp->dmem);
+    RSPIFStage(rsp);
   else {
-    RSPInvalidateOpcode(&rdexLatch->opcode);
+    RSPInvalidateOpcode(&rsp->pipeline.rdexLatch.opcode);
     RSPInvalidateVectorOpcode(&rsp->cp2.opcode);
   }
 }

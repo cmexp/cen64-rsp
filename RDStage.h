@@ -14,8 +14,7 @@
 #include "CP2.h"
 #include "Pipeline.h"
 
-void RSPRDStage(/*const*/ struct RSPIFRDLatch *,
-  struct RSPRDEXLatch *, bool, struct RSPCP2 *);
+void RSPRDStage(struct RSP *);
 
 #endif
 

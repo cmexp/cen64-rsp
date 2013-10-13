@@ -15,8 +15,7 @@
 #include "CP2.h"
 #include "Pipeline.h"
 
-void RSPWBStage(const struct RSPDFWBLatch *,
-  uint32_t [], struct RSPCP2 *);
+void RSPWBStage(struct RSP *);
 
 #endif
 

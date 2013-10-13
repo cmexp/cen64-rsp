@@ -37,7 +37,9 @@ FetchInstructions(const uint8_t *source, uint32_t *iw1, uint32_t *iw2) {
  *  TODO: This is a massive hack as-is... fix it/the decoder.
  * ========================================================================= */
 void
-RSPIFStage(struct RSPIFRDLatch *ifrdLatch, const uint8_t mem[]) {
+RSPIFStage(struct RSP *rsp) {
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
+
   uint32_t *firstIW = &ifrdLatch->firstIW;
   uint32_t *secondIW = &ifrdLatch->secondIW;
   uint32_t pc = ifrdLatch->pc;
@@ -46,7 +48,7 @@ RSPIFStage(struct RSPIFRDLatch *ifrdLatch, const uint8_t mem[]) {
   ifrdLatch->fetchedPC = pc;
 
   /* Fetch a pair of instructions, bump the PC. */
-  FetchInstructions(mem + ifrdLatch->pc, firstIW, secondIW);
+  FetchInstructions(rsp->dmem + ifrdLatch->pc, firstIW, secondIW);
   ifrdLatch->pc = ((pc + 4) & 0xFFC) | 0x1000;
 }
 

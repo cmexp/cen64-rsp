@@ -14,7 +14,7 @@
 #include "CPU.h"
 #include "Pipeline.h"
 
-void RSPIFStage(struct RSPIFRDLatch *, const uint8_t []);
+void RSPIFStage(struct RSP *);
 
 #endif
 

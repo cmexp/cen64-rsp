@@ -475,7 +475,7 @@ StoreByteVector(const struct RSPMemoryData *memoryData, uint8_t *dmem) {
   unsigned element = memoryData->element;
   uint8_t slice[2];
 
-  memcpy(&slice, vector->slices + (element >> 1), sizeof(slice));
+  memcpy(slice, vector->slices + (element >> 1), sizeof(slice));
   dmem[offset] = slice[(element & 1) ^ 1];
 }
 

@@ -33,7 +33,7 @@ struct RSPIFRDLatch {
 };
 
 struct RSPRDEXLatch {
-  uint32_t *pc, iw;
+  uint32_t pc, iw;
   struct RSPOpcode opcode;
 };
 

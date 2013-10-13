@@ -118,8 +118,6 @@ CycleRSP(struct RSP *rsp) {
  * ========================================================================= */
 void
 RSPInitPipeline(struct RSPPipeline *pipeline) {
-  pipeline->rdexLatch.pc = &pipeline->ifrdLatch.pc;
-
   RSPInvalidateOpcode(&pipeline->rdexLatch.opcode);
   RSPInvalidateOpcode(&pipeline->exdfLatch.opcode);
 

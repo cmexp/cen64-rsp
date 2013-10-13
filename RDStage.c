@@ -100,6 +100,7 @@ RSPRDStage(struct RSP *rsp) {
 
   else {
     rdexLatch->iw = ifrdLatch->firstIW;
+    rdexLatch->pc = fetchedPC + 4;
 
     rdexLatch->opcode = *firstOpcode;
     RSPInvalidateVectorOpcode(&rsp->cp2.opcode);

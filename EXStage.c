@@ -87,14 +87,15 @@ RSPANDI(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBEQ(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   if (rs != rt)
     return;
 
-  *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFC;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rdexLatch->pc + imm;
+  ifrdLatch->pc &= 0xFFC;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -104,14 +105,15 @@ RSPBEQ(struct RSP *rsp, uint32_t rs, uint32_t rt) {
 void
 RSPBGEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   if ((int32_t) rs < 0)
     return;
 
-  *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFC;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rdexLatch->pc + imm;
+  ifrdLatch->pc &= 0xFFC;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -122,17 +124,18 @@ void
 RSPBGEZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
-  exdfLatch->result.data = *rdexLatch->pc;
+  exdfLatch->result.data = ifrdLatch->pc;
   exdfLatch->result.dest = RSP_LINK_REGISTER;
 
   if ((int32_t) rs < 0)
     return;
 
-  *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFC;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rdexLatch->pc + imm;
+  ifrdLatch->pc &= 0xFFC;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -142,14 +145,15 @@ RSPBGEZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBGTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   if ((int32_t) rs <= 0)
     return;
 
-  *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFC;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rdexLatch->pc + imm;
+  ifrdLatch->pc &= 0xFFC;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -159,14 +163,15 @@ RSPBGTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBLEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   if ((int32_t) rs > 0)
     return;
 
-  *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFC;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rdexLatch->pc + imm;
+  ifrdLatch->pc &= 0xFFC;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -176,14 +181,15 @@ RSPBLEZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBLTZ(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   if ((int32_t) rs >= 0)
     return;
 
-  *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFC;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rdexLatch->pc + imm;
+  ifrdLatch->pc &= 0xFFC;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -194,18 +200,18 @@ void
 RSPBLTZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
-
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
-  exdfLatch->result.data = *rdexLatch->pc;
+  exdfLatch->result.data = ifrdLatch->pc;
   exdfLatch->result.dest = RSP_LINK_REGISTER;
 
   if ((int32_t) rs >= 0)
     return;
 
-  *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFC;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rdexLatch->pc + imm;
+  ifrdLatch->pc &= 0xFFC;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -215,14 +221,15 @@ RSPBLTZAL(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
 void
 RSPBNE(struct RSP *rsp, uint32_t rs, uint32_t rt) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
   int32_t imm = (int16_t) rdexLatch->iw << 2;
 
   if (rs == rt)
     return;
 
-  *rdexLatch->pc += imm - 4;
-  *rdexLatch->pc &= 0xFFC;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rdexLatch->pc + imm;
+  ifrdLatch->pc &= 0xFFC;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -288,9 +295,10 @@ void RSPINV(struct RSP *unused(rsp),
 void
 RSPJ(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
 
-  *rdexLatch->pc = (rdexLatch->iw & 0x3FF) << 2;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = (rdexLatch->iw & 0x3FF) << 2;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -301,11 +309,12 @@ void
 RSPJAL(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
 
-  exdfLatch->result.data = *rdexLatch->pc;
+  exdfLatch->result.data = ifrdLatch->pc;
   exdfLatch->result.dest = RSP_LINK_REGISTER;
-  *rdexLatch->pc = (rdexLatch->iw & 0x3FF) << 2;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = (rdexLatch->iw & 0x3FF) << 2;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -314,13 +323,13 @@ RSPJAL(struct RSP *rsp, uint32_t unused(rs), uint32_t unused(rt)) {
  * ========================================================================= */
 void
 RSPJALR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
-  const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
 
-  exdfLatch->result.data = *rdexLatch->pc;
+  exdfLatch->result.data = ifrdLatch->pc;
   exdfLatch->result.dest = RSP_LINK_REGISTER;
-  *rdexLatch->pc = rs;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rs;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 
@@ -329,10 +338,10 @@ RSPJALR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
  * ========================================================================= */
 void
 RSPJR(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
-  const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
+  struct RSPIFRDLatch *ifrdLatch = &rsp->pipeline.ifrdLatch;
 
-  *rdexLatch->pc = rs & 0xFFC;
-  *rdexLatch->pc |= 0x1000;
+  ifrdLatch->pc = rs & 0xFFC;
+  ifrdLatch->pc |= 0x1000;
   rsp->didBranch = 1;
 }
 

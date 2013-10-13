@@ -97,25 +97,6 @@ InitRSP(struct RSP *rsp) {
 }
 
 #ifndef NDEBUG
-#include <stdio.h>
-/* ============================================================================
- *  RSPDumpInstruction: Prints the instruction's mnemonic and operands.
- * ========================================================================= */
-void
-RSPDumpInstruction(uint32_t iw) {
-  const struct RSPOpcode *opcode = RSPDecodeInstruction(iw);
-
-  if (opcode->infoFlags & OPCODE_INFO_VCOMP) {
-    printf("%s ", RSPScalarOpcodeMnemonics[opcode->id]);
-    printf("\n");
-  }
-
-  else {
-    printf("%s ", RSPVectorOpcodeMnemonics[opcode->id]);
-    printf("\n");
-  }
-}
-
 /* ============================================================================
  *  RSPDumpOpcodeCounts: Prints counts of all executed opcodes.
  * ========================================================================= */
@@ -228,6 +209,51 @@ RSPDumpRegisters(const struct RSP *rsp) {
   }
 
   putc('\n', stdout);
+}
+#endif
+
+/* ============================================================================
+ *  RSPDumpStatistics: Dumps instruction counts and other useful things.
+ * ========================================================================= */
+#ifndef NDEBUG
+void
+RSPDumpStatistics(struct RSP *rsp) {
+  unsigned long long stotal = 0, vtotal = 0;
+  unsigned i, j;
+
+  printf(" ==================== \n");
+  printf("  SGI RSP Statistics: \n");
+  printf(" ==================== \n");
+
+  printf("\nScalar instruction counts:\n");
+  for (i = 0; i < NUM_RSP_SCALAR_OPCODES; i += 4) {
+    for (j = i; j < i + 4 && j < NUM_RSP_SCALAR_OPCODES; j++) {
+      printf("%7s: %10llu  ", RSPScalarOpcodeMnemonics[j],
+        rsp->pipeline.counts[j]);
+
+      stotal += rsp->pipeline.counts[j];
+    }
+
+    printf("\n");
+  }
+
+  printf("\nVector instruction counts:\n");
+  for (i = 0; i < NUM_RSP_VECTOR_OPCODES; i += 4) {
+    for (j = i; j < i + 4 && j < NUM_RSP_VECTOR_OPCODES; j++) {
+      printf("%7s: %10llu  ", RSPVectorOpcodeMnemonics[j],
+        rsp->cp2.counts[j]);
+
+      vtotal += rsp->cp2.counts[j];
+    }
+
+    printf("\n");
+  }
+
+  printf("\n");
+  printf("Cycles: %llu\n", rsp->pipeline.cycles);
+  printf("IPC: %.2f\n", (float) (stotal + vtotal) / rsp->pipeline.cycles);
+
+  printf("\n");
 }
 #endif
 

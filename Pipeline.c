@@ -93,7 +93,7 @@ CycleRSP(struct RSP *rsp) {
   RSPRDStage(rsp);
 
 #ifndef NDEBUG
-  rsp->pipeline.counts[exOpcode.id]++;
+  rsp->pipeline.cycles++;
 #endif
 
   /* Check for stall conditions. */
@@ -118,10 +118,13 @@ CycleRSP(struct RSP *rsp) {
  * ========================================================================= */
 void
 RSPInitPipeline(struct RSPPipeline *pipeline) {
-  memset(pipeline, 0, sizeof(*pipeline));
   pipeline->rdexLatch.pc = &pipeline->ifrdLatch.pc;
+
   RSPInvalidateOpcode(&pipeline->rdexLatch.opcode);
   RSPInvalidateOpcode(&pipeline->exdfLatch.opcode);
+
+  pipeline->ifrdLatch.firstIW = 0;
+  pipeline->ifrdLatch.secondIW = 0;
   pipeline->ifrdLatch.pc = 0x1000;
 }
 

@@ -279,9 +279,8 @@ RSPCTC2(struct RSP *rsp, uint32_t unused(rs), uint32_t rt) {
 /* ============================================================================
  *  Instruction: INV (Invalid Operation)
  * ========================================================================= */
-void
-RSPINV(struct RSP *unused(rsp), uint32_t unused(rs), uint32_t unused(rt)) {
-}
+void RSPINV(struct RSP *unused(rsp),
+  uint32_t unused(rs), uint32_t unused(rt)) {}
 
 /* ============================================================================
  *  Instruction: J (Jump)
@@ -1226,6 +1225,10 @@ RSPEXStage(struct RSP *rsp) {
   rs = rsp->regs[rsForwardingRegister];
   rt = rsp->regs[rtForwardingRegister];
   rsp->regs[dfwbLatch->result.dest] = temp;
+
+#ifndef NDEBUG
+  rsp->pipeline.counts[rdexLatch->opcode.id]++;
+#endif
 
   RSPScalarFunctionTable[rdexLatch->opcode.id](rsp, rs, rt);
 }

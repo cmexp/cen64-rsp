@@ -47,41 +47,39 @@ HandleDMARead(struct RSP *rsp) {
   uint32_t length = (rsp->cp0.regs[SP_RD_LEN_REG] & 0xFFF) + 1;
   uint32_t skip = rsp->cp0.regs[SP_RD_LEN_REG] >> 20 & 0xFFF;
   unsigned count = rsp->cp0.regs[SP_RD_LEN_REG] >> 12 & 0xFF;
-  unsigned i, j;
+  unsigned i = 0, j;
 
-  /* Check alignment. */
-  if (length & 0x7)
-    length = (length + 0x7) & ~0x7;
-
-  if (rsp->cp0.regs[SP_MEM_ADDR_REG] & 0x3)
-    rsp->cp0.regs[SP_MEM_ADDR_REG] &= ~0x3;
-
-  if (rsp->cp0.regs[SP_DRAM_ADDR_REG] & 0x7)
-    rsp->cp0.regs[SP_DRAM_ADDR_REG] &= ~0x7;
+  /* Force alignment. */
+  length = (length + 0x7) & ~0x7;
+  rsp->cp0.regs[SP_MEM_ADDR_REG] &= ~0x3;
+  rsp->cp0.regs[SP_DRAM_ADDR_REG] &= ~0x7;
 
   /* Check length. */
   if (((rsp->cp0.regs[SP_MEM_ADDR_REG] & 0xFFF) + length) > 0x1000)
     length = 0x1000 - (rsp->cp0.regs[SP_MEM_ADDR_REG] & 0xFFF);
 
-  for (i = 0; i <= count; i++) {
+  do {
     uint32_t source = rsp->cp0.regs[SP_DRAM_ADDR_REG] & 0x7FFFFC;
     uint32_t dest = rsp->cp0.regs[SP_MEM_ADDR_REG] & 0x1FFC;
+    j = 0;
 
     debug("DMA | Request: Read from DRAM.");
     debugarg("DMA | DEST   : [0x%.8x].", dest);
     debugarg("DMA | SOURCE : [0x%.8x].", source);
     debugarg("DMA | LENGTH : [0x%.8x].", length);
 
-    for (j = 0; j < length; j += 4) {
+    do {
       uint32_t sourceAddr = (source + j) & 0x7FFFFC;
       uint32_t destAddr = (dest + j) & 0x1FFC;
 
       DMAFromDRAM(rsp->bus, rsp->dmem + destAddr, sourceAddr, 4);
-    }
+
+      j += 4;
+    } while (j < length);
 
     rsp->cp0.regs[SP_DRAM_ADDR_REG] += length;
     rsp->cp0.regs[SP_MEM_ADDR_REG] += length + skip;
-  }
+  } while(++i <= count);
 }
 
 /* ============================================================================
@@ -96,41 +94,39 @@ HandleDMAWrite(struct RSP *rsp) {
   uint32_t length = (rsp->cp0.regs[SP_WR_LEN_REG] & 0xFFF) + 1;
   uint32_t skip = rsp->cp0.regs[SP_WR_LEN_REG] >> 20 & 0xFFF;
   unsigned count = rsp->cp0.regs[SP_WR_LEN_REG] >> 12 & 0xFF;
-  unsigned i, j;
+  unsigned i = 0, j;
 
-  /* Check alignment. */
-  if (length & 0x7)
-    length = (length + 0x7) & ~0x7;
-
-  if (rsp->cp0.regs[SP_MEM_ADDR_REG] & 0x3)
-    rsp->cp0.regs[SP_MEM_ADDR_REG] &= ~0x3;
-
-  if (rsp->cp0.regs[SP_DRAM_ADDR_REG] & 0x7)
-    rsp->cp0.regs[SP_DRAM_ADDR_REG] &= ~0x7;
+  /* Force alignment. */
+  length = (length + 0x7) & ~0x7;
+  rsp->cp0.regs[SP_MEM_ADDR_REG] &= ~0x3;
+  rsp->cp0.regs[SP_DRAM_ADDR_REG] &= ~0x7;
 
   /* Check length. */
   if (((rsp->cp0.regs[SP_MEM_ADDR_REG] & 0xFFF) + length) > 0x1000)
     length = 0x1000 - (rsp->cp0.regs[SP_MEM_ADDR_REG] & 0xFFF);
 
-  for (i = 0; i <= count; i++) {
+  do {
     uint32_t dest = rsp->cp0.regs[SP_DRAM_ADDR_REG] & 0x7FFFFC;
     uint32_t source = rsp->cp0.regs[SP_MEM_ADDR_REG] & 0x1FFC;
+    j = 0;
 
     debug("DMA | Request: Write to DRAM.");
     debugarg("DMA | DEST   : [0x%.8x].", dest);
     debugarg("DMA | SOURCE : [0x%.8x].", source);
     debugarg("DMA | LENGTH : [0x%.8x].", length);
 
-    for (j = 0; j < length; j += 4) {
+    do {
       uint32_t sourceAddr = (source + j) & 0x1FFC;
       uint32_t destAddr = (dest + j) & 0x7FFFFC;
 
       DMAToDRAM(rsp->bus, destAddr, rsp->dmem + sourceAddr, 4);
-    }
+
+      j += 4;
+    } while (j < length);
 
     rsp->cp0.regs[SP_MEM_ADDR_REG] += length;
     rsp->cp0.regs[SP_DRAM_ADDR_REG] += length + skip;
-  }
+  } while (++i <= count);
 }
 
 /* ============================================================================

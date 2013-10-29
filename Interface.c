@@ -87,7 +87,7 @@ HandleDMARead(struct RSP *rsp) {
  *
  *  SP_MEM_ADDR_REG = I/DCache (source) address.
  *  SP_DRAM_ADDR_REG = RDRAM (target) address.
- *  SP_RD_LEN_REG =  Skip | Count | Transfer size.
+ *  SP_WR_LEN_REG =  Skip | Count | Transfer size.
  * ========================================================================= */
 static void
 HandleDMAWrite(struct RSP *rsp) {

@@ -43,7 +43,11 @@ struct RSPCP2 {
   struct RSPVector compareCode;
   struct RSPVector carryOut;
 
-  uint16_t vco; /* TODO: Remove. */
+  /* We cheat to assist vectorization: */
+  /* On hardware, VCO is VCOHI | VCOLO. */
+  struct RSPVector vcohi;
+  struct RSPVector vcolo;
+
   uint16_t vcc; /* TODO: Remove. */
   uint8_t  vce; /* TODO: Remove. */
 
@@ -76,6 +80,11 @@ uint16_t RSPCP2GetCarryOut(const struct RSPCP2 *);
 
 void RSPCycleCP2(struct RSPCP2 *);
 void RSPInitCP2(struct RSPCP2 *);
+
+#ifdef USE_SSE
+uint16_t RSPGetVCO(const struct RSPCP2 *);
+void RSPSetVCO(struct RSPCP2 *, uint16_t);
+#endif
 
 #endif
 

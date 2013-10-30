@@ -62,32 +62,16 @@ RSPClampLowToVal(__m128i vaccLow, __m128i vaccMid, __m128i vaccHigh) {
 }
 
 /* ============================================================================
- *  RSPGetNewVCO: Converts VCO from old to new format.
+ *  RSPGetVCO: Get VCO in the "old" format.
  * ========================================================================= */
-static inline __m128i
-RSPGetNewVCO(uint16_t vco) {
-  uint16_t vector[8];
-  unsigned i;
-
-  for (i = 0; i < 8; i++, vco >>= 1)
-    vector[i] = vco & 1;
-
-  return _mm_load_si128((__m128i*) vector);
+#ifdef USE_SSE
+uint16_t
+RSPGetVCO(const struct RSPCP2 *cp2) {
+  __m128i vne = _mm_load_si128((__m128i*) (cp2->vcohi.slices));
+  __m128i vco = _mm_load_si128((__m128i*) (cp2->vcolo.slices));
+  return (uint16_t) _mm_movemask_epi8(_mm_packs_epi16(vco, vne));
 }
-
-/* ============================================================================
- *  RSPGetNewVNE: Converts (VCO >> 8) from old to new format.
- * ========================================================================= */
-static inline __m128i
-RSPGetNewVNE(uint16_t vco) {
-  uint16_t vector[8];
-  unsigned i;
-
-  for (vco >>= 8, i = 0; i < 8; i++, vco >>= 1)
-    vector[i] = (vco & 1) ? 0xFFFF : 0x0000;
-
-  return _mm_load_si128((__m128i*) vector);
-}
+#endif
 
 /* ============================================================================
  *  RSPGetVectorOperands: Builds and returns the proper configuration of the
@@ -147,6 +131,22 @@ RSPPackHi32to16(__m128i vectorLow, __m128i vectorHigh) {
   vectorHigh = _mm_srai_epi32(vectorHigh, 16);
   return _mm_packs_epi32(vectorLow, vectorHigh);
 }
+
+/* ============================================================================
+ *  RSPSetVCO: Set VCO given the "old" format.
+ * ========================================================================= */
+#ifdef USE_SSE
+void
+RSPSetVCO(struct RSPCP2 *cp2, uint16_t vco) {
+  static const uint16_t lut[2] = {0x0000, 0xFFFFU};
+  unsigned i;
+
+  for (i = 0; i < 8; i++, vco >>= 1) {
+    cp2->vcolo.slices[i] = lut[(vco >> 0) & 1];
+    cp2->vcohi.slices[i] = lut[(vco >> 8) & 1];
+  }
+}
+#endif
 
 /* ============================================================================
  *  RSPSignExtend16to32: Sign-extend 16-bit slices to 32-bit slices.
@@ -261,9 +261,8 @@ RSPVADD(struct RSPCP2 *cp2, int16_t *vd,
   __m128i vsReg = _mm_load_si128((__m128i*) vs);
   vtReg = RSPGetVectorOperands(vtReg, element);
 
-  carryOut = RSPGetNewVCO(cp2->vco);
-  /* What bits are these? Carry? */
-  /* rsp->vco = _mm_setzero_si128(); */
+  carryOut = _mm_load_si128((__m128i*) (cp2->vcolo.slices));
+  carryOut = _mm_srli_epi16(carryOut, 15);
 
   /* VACC uses unsaturated arithmetic. */
   vdReg = _mm_add_epi16(vsReg, vtReg);
@@ -278,7 +277,8 @@ RSPVADD(struct RSPCP2 *cp2, int16_t *vd,
 
   _mm_store_si128((__m128i*) vd, vdReg);
   _mm_store_si128((__m128i*) accLow, vaccLow);
-  cp2->vco = 0;
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
 #else
 #warning "Unimplemented function: RSPVADD (No SSE)."
 #endif
@@ -305,11 +305,11 @@ RSPVADDC(struct RSPCP2 *cp2, int16_t *vd,
 
   equalMask = _mm_cmpeq_epi16(satSum, unsatSum);
   equalMask = _mm_cmpeq_epi16(equalMask, _mm_setzero_si128());
-  carryOut = _mm_packs_epi16(equalMask, equalMask);
 
   _mm_store_si128((__m128i*) vd, unsatSum);
   _mm_store_si128((__m128i*) accLow, unsatSum);
-  cp2->vco = _mm_movemask_epi8(carryOut) & 0xFF;
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), equalMask);
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
 #else
 #warning "Unimplemented function: RSPVADDC (No SSE)."
 #endif
@@ -350,11 +350,11 @@ RSPVCH(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
+  uint16_t vco = 0x0000;
   int16_t vtData[8];
   int ge, le, neq;
   unsigned i;
 
-  cp2->vco = 0x0000;
   cp2->vcc = 0x0000;
   cp2->vce = 0x00;
 
@@ -382,7 +382,7 @@ RSPVCH(struct RSPCP2 *cp2, int16_t *vd,
       /* !(x | y) = x ^ !(y), if (x & y) != 1 */
       neq ^= !(vs + vt == 0);
       accLow[i] = le ? -vt : vs;
-      cp2->vco |= (neq <<= (i + 0x8)) | (sn << (i + 0x0));
+      vco |= (neq <<= (i + 0x8)) | (sn << (i + 0x0));
     }
 
     else {
@@ -392,7 +392,7 @@ RSPVCH(struct RSPCP2 *cp2, int16_t *vd,
       cp2->vce |= 0x00 << i;
 
       accLow[i] = ge ? vt : vs;
-      cp2->vco |= (neq <<= (i + 0x8)) | (sn << (i + 0x0));
+      vco |= (neq <<= (i + 0x8)) | (sn << (i + 0x0));
     }
 
     cp2->vcc |=  (ge <<= (i + 0x8)) | (le <<= (i + 0x0));
@@ -400,6 +400,7 @@ RSPVCH(struct RSPCP2 *cp2, int16_t *vd,
 
   memcpy(vd, accLow, sizeof(short) * 8);
   cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
+  RSPSetVCO(cp2, vco);
 }
 
 /* ============================================================================
@@ -410,6 +411,7 @@ RSPVCL(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
 
+  uint16_t vco = RSPGetVCO(cp2);
   int16_t vccOld = cp2->vcc;
   int16_t vtData[8];
   int ge, le;
@@ -427,8 +429,8 @@ RSPVCL(struct RSPCP2 *cp2, int16_t *vd,
   for (i = 0; i < 8; i++) {
     uint16_t vs = (unsigned short) vsData[i];
     uint16_t vt = (unsigned short) vtData[i];
-    int eq = (~cp2->vco >> (i + 0x8)) & 0x0001;
-    int sn = (cp2->vco >> (i + 0x0)) & 0x0001;
+    int eq = (~vco >> (i + 0x8)) & 0x0001;
+    int sn = (vco >> (i + 0x0)) & 0x0001;
 
     le = vccOld & (0x0001 << i);
     ge = vccOld & (0x0100 << i);
@@ -460,7 +462,8 @@ RSPVCL(struct RSPCP2 *cp2, int16_t *vd,
   }
 
   memcpy(vd, accLow, sizeof(short) * 8);
-  cp2->vco = 0x0000;
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
   cp2->vce = 0x00;
 
   cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
@@ -509,7 +512,8 @@ RSPVCR(struct RSPCP2 *cp2, int16_t *vd,
   }
 
   memcpy(vd, accLow, sizeof(short) * 8);
-  cp2->vco = 0x0000;
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
   cp2->vce = 0x00;
 
   cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
@@ -526,20 +530,21 @@ RSPVEQ(struct RSPCP2 *cp2, int16_t *vd,
   int eq;
 
 #ifdef USE_SSE
+  __m128i vne = _mm_load_si128((__m128i*) (cp2->vcohi.slices));
   __m128i vsReg = _mm_load_si128((__m128i*) vsData);
   __m128i vtReg = _mm_load_si128((__m128i*) vtData);
   vtReg = RSPGetVectorOperands(vtReg, element);
-  __m128i vvne = RSPGetNewVNE(cp2->vco);
-  cp2->vco = 0x0000;
 
   __m128i equal = _mm_cmpeq_epi16(vtReg, vsReg);
-  vvne = _mm_cmpeq_epi16(vvne, _mm_setzero_si128());
-  __m128i vvcc = _mm_and_si128(equal, vvne);
+  vne = _mm_cmpeq_epi16(vne, _mm_setzero_si128());
+  __m128i vvcc = _mm_and_si128(equal, vne);
 
   vvcc = _mm_packs_epi16(vvcc, vvcc);
   cp2->vcc = _mm_movemask_epi8(vvcc) & 0xFF;
   _mm_store_si128((__m128i*) accLow, vtReg);
   _mm_store_si128((__m128i*) vd, vtReg);
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
 #else
 #warning "Unimplemented function: RSPVEQ (No SSE)."
 #endif
@@ -556,18 +561,17 @@ RSPVGE(struct RSPCP2 *cp2, int16_t *vd,
   int16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
+  __m128i vne = _mm_load_si128((__m128i*) (cp2->vcohi.slices));
+  __m128i vco = _mm_load_si128((__m128i*) (cp2->vcolo.slices));
   __m128i vsReg = _mm_load_si128((__m128i*) vsData);
   __m128i vtReg = _mm_load_si128((__m128i*) vtData);
   vtReg = RSPGetVectorOperands(vtReg, element);
 
   __m128i temp, equal, greaterEqual, vvcc, vdReg;
-  __m128i vvne = RSPGetNewVNE(cp2->vco);
-  __m128i vvco = RSPGetNewVCO(cp2->vco);
   cp2->vcc = 0x0000;
-  cp2->vco = 0x0000;
 
   /* equal = (~vco | ~vne) && (vs == vt) */
-  temp = _mm_and_si128(vvne, vvco);
+  temp = _mm_and_si128(vne, vco);
   temp = _mm_cmpeq_epi16(temp, _mm_setzero_si128());
   equal = _mm_cmpeq_epi16(vsReg, vtReg);
   equal = _mm_and_si128(temp, equal);
@@ -589,6 +593,8 @@ RSPVGE(struct RSPCP2 *cp2, int16_t *vd,
   cp2->vcc = _mm_movemask_epi8(vvcc) & 0xFF;
   _mm_store_si128((__m128i*) accLow, vdReg);
   _mm_store_si128((__m128i*) vd, vdReg);
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
 #else
 #warning "Unimplemented function: RSPVGE (No SSE)."
 #endif
@@ -614,20 +620,17 @@ RSPVLT(struct RSPCP2 *cp2, int16_t *vd,
   int16_t *accLow = cp2->accumulatorLow.slices;
 
 #ifdef USE_SSE
+  __m128i vne = _mm_load_si128((__m128i*) (cp2->vcohi.slices));
+  __m128i vco = _mm_load_si128((__m128i*) (cp2->vcolo.slices));
   __m128i vsReg = _mm_load_si128((__m128i*) vsData);
   __m128i vtReg = _mm_load_si128((__m128i*) vtData);
   vtReg = RSPGetVectorOperands(vtReg, element);
 
   __m128i temp, equal, lessthanEqual, vvcc, vdReg;
-  __m128i vvne = RSPGetNewVNE(cp2->vco);
-  __m128i vvco = RSPGetNewVCO(cp2->vco);
   cp2->vcc = 0x0000;
-  cp2->vco = 0x0000;
 
-  /* equal = (((vco << 15) >> 15) & vne) && (vs == vt) */
-  temp = _mm_and_si128(vvne, vvco);
-  temp = _mm_slli_epi16(temp, 15);
-  temp = _mm_srai_epi16(temp, 15);
+  /* equal = (vco & vne) && (vs == vt) */
+  temp = _mm_and_si128(vne, vco);
   equal = _mm_cmpeq_epi16(vsReg, vtReg);
   equal = _mm_and_si128(equal, temp);
 
@@ -648,6 +651,8 @@ RSPVLT(struct RSPCP2 *cp2, int16_t *vd,
   cp2->vcc = _mm_movemask_epi8(vvcc) & 0xFF;
   _mm_store_si128((__m128i*) accLow, vdReg);
   _mm_store_si128((__m128i*) vd, vdReg);
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
 #else
 #warning "Unimplemented function: RSPVLT (No SSE)."
 #endif
@@ -1424,20 +1429,21 @@ RSPVNE(struct RSPCP2 *cp2, int16_t *vd,
   int eq;
 
 #ifdef USE_SSE
+  __m128i vne = _mm_load_si128((__m128i*) (cp2->vcohi.slices));
   __m128i vsReg = _mm_load_si128((__m128i*) vsData);
   __m128i vtReg = _mm_load_si128((__m128i*) vtData);
   vtReg = RSPGetVectorOperands(vtReg, element);
-  __m128i vvne = RSPGetNewVNE(cp2->vco);
-  cp2->vco = 0x0000;
 
   __m128i notequal = _mm_cmpeq_epi16(vtReg, vsReg);
   notequal = _mm_cmpeq_epi16(notequal, _mm_setzero_si128());
-  __m128i vvcc = _mm_or_si128(notequal, vvne);
+  __m128i vvcc = _mm_or_si128(notequal, vne);
 
   vvcc = _mm_packs_epi16(vvcc, vvcc);
   cp2->vcc = _mm_movemask_epi8(vvcc) & 0xFF;
   _mm_store_si128((__m128i*) accLow, vsReg);
   _mm_store_si128((__m128i*) vd, vsReg);
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
 #else
 #warning "Unimplemented function: RSPVNE (No SSE)."
 #endif
@@ -1845,7 +1851,8 @@ RSPVSUB(struct RSPCP2 *cp2, int16_t *vd,
   __m128i vtReg = _mm_load_si128((__m128i*) vt);
   __m128i vsReg = _mm_load_si128((__m128i*) vs);
   vtReg = RSPGetVectorOperands(vtReg, element);
-  carryOut = RSPGetNewVCO(cp2->vco);
+  carryOut = _mm_load_si128((__m128i*) (cp2->vcolo.slices));
+  carryOut = _mm_srli_epi16(carryOut, 15);
 
   /* VACC uses unsaturated arithmetic. */
   vaccLow = unsatDiff = _mm_sub_epi16(vsReg, vtReg);
@@ -1867,7 +1874,8 @@ RSPVSUB(struct RSPCP2 *cp2, int16_t *vd,
 
   _mm_store_si128((__m128i*) vd, vdReg);
   _mm_store_si128((__m128i*) accLow, vaccLow);
-  cp2->vco = 0;
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
 #else
 #warning "Unimplemented function: RSPVSUB (No SSE)."
 #endif
@@ -1882,10 +1890,9 @@ void
 RSPVSUBC(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vs, const int16_t *vt, unsigned element) {
   uint16_t *accLow = cp2->accumulatorLow.slices;
-  unsigned vco = 0;
 
 #ifdef USE_SSE
-  __m128i satDiff, lessThanMask, notEqualMask, carryOut, vdReg;
+  __m128i satDiff, lessThanMask, notEqualMask, vdReg;
   __m128i vtReg = _mm_load_si128((__m128i*) vt);
   __m128i vsReg = _mm_load_si128((__m128i*) vs);
   vtReg = RSPGetVectorOperands(vtReg, element);
@@ -1899,12 +1906,10 @@ RSPVSUBC(struct RSPCP2 *cp2, int16_t *vd,
   lessThanMask = _mm_cmpeq_epi16(satDiff, _mm_setzero_si128());
   lessThanMask = _mm_and_si128(lessThanMask, notEqualMask);
 
-  carryOut = _mm_packs_epi16(lessThanMask, notEqualMask);
-  vco = _mm_movemask_epi8(carryOut);
-
   _mm_store_si128((__m128i*) vd, vdReg);
   _mm_store_si128((__m128i*) accLow, vdReg);
-  cp2->vco = vco;
+  _mm_store_si128((__m128i*) (cp2->vcolo.slices), lessThanMask);
+  _mm_store_si128((__m128i*) (cp2->vcohi.slices), notEqualMask);
 #else
 #warning "Unimplemented function: RSPVSUBC (No SSE)."
 #endif

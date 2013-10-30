@@ -76,6 +76,20 @@ RSPGetNewVCO(uint16_t vco) {
 }
 
 /* ============================================================================
+ *  RSPGetNewVNE: Converts (VCO >> 8) from old to new format.
+ * ========================================================================= */
+static inline __m128i
+RSPGetNewVNE(uint16_t vco) {
+  uint16_t vector[8];
+  unsigned i;
+
+  for (vco >>= 8, i = 0; i < 8; i++, vco >>= 1)
+    vector[i] = (vco & 1) ? 0xFFFF : 0x0000;
+
+  return _mm_load_si128((__m128i*) vector);
+}
+
+/* ============================================================================
  *  RSPGetVectorOperands: Builds and returns the proper configuration of the
  *  `vt` vector for instructions that require the use of a element specifier.
  * ========================================================================= */
@@ -461,7 +475,6 @@ RSPVCR(struct RSPCP2 *cp2, int16_t *vd,
   int16_t *accLow = cp2->accumulatorLow.slices;
 
   int16_t vtData[8];
-  unsigned char vcoVce;
   unsigned i;
   int ge, le;
 
@@ -507,37 +520,29 @@ RSPVCR(struct RSPCP2 *cp2, int16_t *vd,
  * ========================================================================= */
 void
 RSPVEQ(struct RSPCP2 *cp2, int16_t *vd,
-  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
+  const int16_t *vsData, const int16_t *vtData, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
-
-  int16_t vtData[8];
-  unsigned char vcoVce;
   unsigned i;
   int eq;
 
 #ifdef USE_SSE
-  __m128i vtReg = _mm_load_si128((__m128i*) vtDataIn);
+  __m128i vsReg = _mm_load_si128((__m128i*) vsData);
+  __m128i vtReg = _mm_load_si128((__m128i*) vtData);
   vtReg = RSPGetVectorOperands(vtReg, element);
-    _mm_store_si128((__m128i*) vtData, vtReg);
+  __m128i vvne = RSPGetNewVNE(cp2->vco);
+  cp2->vco = 0x0000;
+
+  __m128i equal = _mm_cmpeq_epi16(vtReg, vsReg);
+  vvne = _mm_cmpeq_epi16(vvne, _mm_setzero_si128());
+  __m128i vvcc = _mm_and_si128(equal, vvne);
+
+  vvcc = _mm_packs_epi16(vvcc, vvcc);
+  cp2->vcc = _mm_movemask_epi8(vvcc) & 0xFF;
+  _mm_store_si128((__m128i*) accLow, vtReg);
+  _mm_store_si128((__m128i*) vd, vtReg);
 #else
 #warning "Unimplemented function: RSPVEQ (No SSE)."
 #endif
-
-  cp2->vcc = 0x0000;
-  vcoVce = ~(unsigned char)(cp2->vco >> 8);
-
-  for (i = 0; i < 8; i++) {
-    int16_t vs = vsData[i];
-    int16_t vt = vtData[i];
-
-    eq  = (vcoVce >> i) & 0x01;
-    eq &= (vs == vt);
-    cp2->vcc |= eq <<= i;
-    accLow[i] = vt;
-  }
-
-  memcpy(vd, accLow, sizeof(short) * 8);
-  cp2->vco = 0x0000;
 
   cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
@@ -1397,37 +1402,29 @@ RSPVNAND(struct RSPCP2 *cp2, int16_t *vd,
  * ========================================================================= */
 void
 RSPVNE(struct RSPCP2 *cp2, int16_t *vd,
-  const int16_t *vsData, const int16_t *vtDataIn, unsigned element) {
+  const int16_t *vsData, const int16_t *vtData, unsigned element) {
   int16_t *accLow = cp2->accumulatorLow.slices;
-
-  int16_t vtData[8];
-  unsigned char vcoVce;
   unsigned i;
-  int ne;
+  int eq;
 
 #ifdef USE_SSE
-  __m128i vtReg = _mm_load_si128((__m128i*) vtDataIn);
+  __m128i vsReg = _mm_load_si128((__m128i*) vsData);
+  __m128i vtReg = _mm_load_si128((__m128i*) vtData);
   vtReg = RSPGetVectorOperands(vtReg, element);
-    _mm_store_si128((__m128i*) vtData, vtReg);
+  __m128i vvne = RSPGetNewVNE(cp2->vco);
+  cp2->vco = 0x0000;
+
+  __m128i notequal = _mm_cmpeq_epi16(vtReg, vsReg);
+  notequal = _mm_cmpeq_epi16(notequal, _mm_setzero_si128());
+  __m128i vvcc = _mm_or_si128(notequal, vvne);
+
+  vvcc = _mm_packs_epi16(vvcc, vvcc);
+  cp2->vcc = _mm_movemask_epi8(vvcc) & 0xFF;
+  _mm_store_si128((__m128i*) accLow, vsReg);
+  _mm_store_si128((__m128i*) vd, vsReg);
 #else
 #warning "Unimplemented function: RSPVNE (No SSE)."
 #endif
-
-  cp2->vcc = 0x0000;
-  vcoVce = ~(unsigned char)(cp2->vco >> 8);
-
-  for (i = 0; i < 8; i++) {
-    int16_t vs = vsData[i];
-    int16_t vt = vtData[i];
-
-    ne  = (~vcoVce >> i) & 0x01;
-    ne |= (vs != vt);
-    cp2->vcc |= ne <<= i;
-    accLow[i] = vs;
-  }
-
-  memcpy(vd, accLow, sizeof(short) * 8);
-  cp2->vco = 0x0000;
 
   cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }

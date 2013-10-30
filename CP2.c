@@ -566,7 +566,7 @@ RSPVGE(struct RSPCP2 *cp2, int16_t *vd,
   cp2->vcc = 0x0000;
   cp2->vco = 0x0000;
 
-  /* ~vco | ~vne */
+  /* equal = (~vco | ~vne) && (vs == vt) */
   temp = _mm_and_si128(vvne, vvco);
   temp = _mm_cmpeq_epi16(temp, _mm_setzero_si128());
   equal = _mm_cmpeq_epi16(vsReg, vtReg);
@@ -576,7 +576,7 @@ RSPVGE(struct RSPCP2 *cp2, int16_t *vd,
   greaterEqual = _mm_cmpgt_epi16(vsReg, vtReg);
   greaterEqual = _mm_or_si128(greaterEqual, equal);
 
-  /* temp = ge ? vs : vt; */
+  /* vd = ge ? vs : vt; */
 #ifdef SSSE3_ONLY
   vsReg = _mm_and_si128(greaterEqual, vsReg);
   vtReg = _mm_andnot_si128(greaterEqual, vtReg);
@@ -624,7 +624,7 @@ RSPVLT(struct RSPCP2 *cp2, int16_t *vd,
   cp2->vcc = 0x0000;
   cp2->vco = 0x0000;
 
-  /* vco & vne */
+  /* equal = (((vco << 15) >> 15) & vne) && (vs == vt) */
   temp = _mm_and_si128(vvne, vvco);
   temp = _mm_slli_epi16(temp, 15);
   temp = _mm_srai_epi16(temp, 15);
@@ -635,7 +635,7 @@ RSPVLT(struct RSPCP2 *cp2, int16_t *vd,
   lessthanEqual = _mm_cmplt_epi16(vsReg, vtReg);
   lessthanEqual = _mm_or_si128(lessthanEqual, equal);
 
-  /* temp = le ? vs : vt; */
+  /* vd = le ? vs : vt; */
 #ifdef SSSE3_ONLY
   vsReg = _mm_and_si128(lessthanEqual, vsReg);
   vtReg = _mm_andnot_si128(lessthanEqual, vtReg);

@@ -241,8 +241,6 @@ RSPVABS(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVABS (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -282,8 +280,6 @@ RSPVADD(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVADD (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -313,8 +309,6 @@ RSPVADDC(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVADDC (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -338,8 +332,6 @@ RSPVAND(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVAND (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -399,7 +391,6 @@ RSPVCH(struct RSPCP2 *cp2, int16_t *vd,
   }
 
   memcpy(vd, accLow, sizeof(short) * 8);
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
   RSPSetVCO(cp2, vco);
 }
 
@@ -465,8 +456,6 @@ RSPVCL(struct RSPCP2 *cp2, int16_t *vd,
   _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
   _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
   cp2->vce = 0x00;
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -515,8 +504,6 @@ RSPVCR(struct RSPCP2 *cp2, int16_t *vd,
   _mm_store_si128((__m128i*) (cp2->vcolo.slices), _mm_setzero_si128());
   _mm_store_si128((__m128i*) (cp2->vcohi.slices), _mm_setzero_si128());
   cp2->vce = 0x00;
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -548,8 +535,6 @@ RSPVEQ(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVEQ (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -598,8 +583,6 @@ RSPVGE(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVGE (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -608,7 +591,6 @@ RSPVGE(struct RSPCP2 *cp2, int16_t *vd,
 void
 RSPVINV(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vs, const int16_t *vt, unsigned element) {
-  cp2->mulStageDest = 0;
 }
 
 /* ============================================================================
@@ -656,8 +638,6 @@ RSPVLT(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVLT (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -736,8 +716,6 @@ RSPVMACF(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: VMACF (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -747,7 +725,6 @@ void
 RSPVMACQ(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VMACQ.");
-  cp2->mulStageDest = 0;
 }
 
 /* ============================================================================
@@ -844,8 +821,6 @@ RSPVMACU(struct RSPCP2 *cp2, int16_t *vd,
     result &= ~tmp;
     vd[i] = result;
   }
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -890,8 +865,6 @@ RSPVMADH(struct RSPCP2 *cp2, int16_t *vd,
 #else
   debug("Unimplemented function: VMADH.");
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -949,8 +922,6 @@ RSPVMADL(struct RSPCP2 *cp2, int16_t *vd,
 #else
   debug("Unimplemented function: VMADL.");
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1025,8 +996,6 @@ RSPVMADM(struct RSPCP2 *cp2, int16_t *vd,
 #else
   debug("Unimplemented function: VMADM.");
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1102,8 +1071,6 @@ RSPVMADN(struct RSPCP2 *cp2, int16_t *vd,
 #else
   debug("Unimplemented function: VMADN.");
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1124,7 +1091,6 @@ RSPVMOV(struct RSPCP2 *cp2, int16_t *vd,
 #endif
 
   vd[delement & 0x7] = accLow[delement & 0x7];
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1150,7 +1116,6 @@ RSPVMRG(struct RSPCP2 *cp2, int16_t *vd,
     accLow[i] = cp2->vcc & (0x0001 << i) ? vsData[i] : vtData[i];
 
   memcpy(vd, accLow, sizeof(short) * 8);
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1189,8 +1154,6 @@ RSPVMUDH(struct RSPCP2 *cp2, int16_t *vd,
 #else
   debug("Unimplemented function: VMUDH.");
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1224,8 +1187,6 @@ RSPVMUDL(struct RSPCP2 *cp2, int16_t *vd,
 #else
   debug("Unimplemented function: VMUDL.");
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1267,8 +1228,6 @@ RSPVMUDM(struct RSPCP2 *cp2, int16_t *vd,
 #else
   debug("Unimplemented function: VMUDM.");
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1307,8 +1266,6 @@ RSPVMUDN(struct RSPCP2 *cp2, int16_t *vd,
 #else
   debug("Unimplemented function: VMUDN.");
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1343,8 +1300,6 @@ RSPVMULF(struct RSPCP2 *cp2, int16_t *vd,
 
   for (i = 0; i < 8; i++)
     vd[i] = accMid[i] + (signed short)(accMid[i] >> 15);
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1354,7 +1309,6 @@ void
 RSPVMULQ(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VMULQ.");
-  cp2->mulStageDest = 0;
 }
 
 /* ============================================================================
@@ -1389,8 +1343,6 @@ RSPVMULU(struct RSPCP2 *cp2, int16_t *vd,
     vd[i] |= vd[i] >> 15;
     vd[i] = (thing < 0) ? 0 : vd[i];
   }
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1414,8 +1366,6 @@ RSPVNAND(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVNAND (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1447,8 +1397,6 @@ RSPVNE(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVNE (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1457,7 +1405,6 @@ RSPVNE(struct RSPCP2 *cp2, int16_t *vd,
 void
 RSPVNOP(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vs, const int16_t *vt, unsigned element) {
-  cp2->mulStageDest = 0;
 }
 
 /* ============================================================================
@@ -1481,8 +1428,6 @@ RSPVNOR(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVNOR (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1506,8 +1451,6 @@ RSPVOR(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVOR (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1531,8 +1474,6 @@ RSPVNXOR(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVNXOR (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1610,8 +1551,6 @@ RSPVRCPH(struct RSPCP2 *cp2, int16_t *vd,
 
   vd[delement & 0x7] = cp2->divOut >> 16;
   cp2->doublePrecision = true;
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1671,8 +1610,6 @@ FOUND_MSB:
 
   vd[delement & 0x7] = (short) cp2->divOut;
   cp2->doublePrecision = false;
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1682,7 +1619,6 @@ void
 RSPVRNDN(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VRNDN.");
-  cp2->mulStageDest = 0;
 }
 
 /* ============================================================================
@@ -1692,7 +1628,6 @@ void
 RSPVRNDP(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VRNDP.");
-  cp2->mulStageDest = 0;
 }
 
 /* ============================================================================
@@ -1702,7 +1637,6 @@ void
 RSPVRSQ(struct RSPCP2 *cp2, int16_t *vd,
   const int16_t *vs, const int16_t *vt, unsigned element) {
   debug("Unimplemented function: VRSQ.");
-  cp2->mulStageDest = 0;
 }
 
 /* ============================================================================
@@ -1726,8 +1660,6 @@ RSPVRSQH(struct RSPCP2 *cp2, int16_t *vd,
 
   vd[delement & 07] = cp2->divOut >> 16;
   cp2->doublePrecision = true;
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1789,8 +1721,6 @@ FOUND_MSB:
 
   vd[delement & 0x7] = (short) cp2->divOut;
   cp2->doublePrecision = false;
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1832,8 +1762,6 @@ RSPVSAR(struct RSPCP2 *cp2, int16_t *vd,
     default:
       memset(vd, 0, sizeof(short) * 8);
   }
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1879,8 +1807,6 @@ RSPVSUB(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVSUB (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1913,8 +1839,6 @@ RSPVSUBC(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVSUBC (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1938,8 +1862,6 @@ RSPVXOR(struct RSPCP2 *cp2, int16_t *vd,
 #else
 #warning "Unimplemented function: RSPVXOR (No SSE)."
 #endif
-
-  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
 }
 
 /* ============================================================================
@@ -1968,9 +1890,10 @@ RSPCycleCP2(struct RSPCP2 *cp2) {
 
   cp2->locked[cp2->accStageDest] = false;     /* "WB" */
   cp2->accStageDest = cp2->mulStageDest;      /* "DF" */
-  cp2->mulStageDest = 0;                      /* "EX" */
 
   RSPVectorFunctionTable[cp2->opcode.id](cp2, vd, vs, vt, element);
+  cp2->mulStageDest = (vd - cp2->regs[0].slices) >> 3;
+
   assert(cp2->mulStageDest >= 0 && cp2->mulStageDest < 32);
 
 #ifndef NDEBUG

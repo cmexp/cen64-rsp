@@ -14,7 +14,7 @@
 #include "CP2.h"
 #include "Pipeline.h"
 
-void RSPEXStage(struct RSP *);
+void RSPEXStage(struct RSP *, unsigned, unsigned);
 
 #endif
 

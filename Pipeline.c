@@ -39,8 +39,7 @@ IsLoadStoreStall(uint32_t rdInfoFlags, uint32_t dfInfoFlags) {
   uint32_t rdStallConditionMask = OPCODE_INFO_STORE | copsOpcodeInfoMask;
 
   return (dfInfoFlags & dfStallConditionMask) &&
-         (rdInfoFlags & rdStallConditionMask)
-         ? true : false;
+         (rdInfoFlags & rdStallConditionMask);
 }
 
 /* ============================================================================
@@ -48,24 +47,20 @@ IsLoadStoreStall(uint32_t rdInfoFlags, uint32_t dfInfoFlags) {
  * ========================================================================= */
 static bool
 IsLoadUseStall(const struct RSPRDEXLatch *rdexLatch, uint32_t exInfoFlags,
-  uint32_t dfInfoFlags, uint32_t exDestination, uint32_t dfDestination) {
+  uint32_t dfInfoFlags, uint32_t exDestination, uint32_t dfDestination,
+  unsigned rsSource, unsigned rtSource) {
   uint32_t rdInfoFlags = rdexLatch->opcode.infoFlags;
   bool rdRequiresRS = rdInfoFlags & OPCODE_INFO_NEED_RS;
   bool rdRequiresRT = rdInfoFlags & OPCODE_INFO_NEED_RT;
-  uint32_t rsSource = GET_RS(rdexLatch->iw);
-  uint32_t rtSource = GET_RT(rdexLatch->iw);
 
   if ((exInfoFlags & OPCODE_INFO_LOAD) && 
     ((rdRequiresRS && rsSource == exDestination) ||
     (rdRequiresRT && rtSource == exDestination)))
     return true;
 
-  else if ((dfInfoFlags & OPCODE_INFO_LOAD) &&
+  return ((dfInfoFlags & OPCODE_INFO_LOAD) &&
     ((rdRequiresRS && rsSource == dfDestination) ||
-    (rdRequiresRT && rtSource == dfDestination)))
-    return true;
-
-  return false;
+    (rdRequiresRT && rtSource == dfDestination)));
 }
 
 /* ============================================================================
@@ -74,6 +69,9 @@ IsLoadUseStall(const struct RSPRDEXLatch *rdexLatch, uint32_t exInfoFlags,
 void
 CycleRSP(struct RSP *rsp) {
   bool ldStoreStall, ldUseStall;
+  unsigned rsSource = GET_RS(rsp->pipeline.rdexLatch.iw);
+  unsigned rtSource = GET_RT(rsp->pipeline.rdexLatch.iw);
+  unsigned rs, rt;
 
   /* Generate outputs for later stages. */ 
   struct RSPOpcode dfOpcode = rsp->pipeline.exdfLatch.opcode;
@@ -88,8 +86,8 @@ CycleRSP(struct RSP *rsp) {
   RSPDFStage(rsp);
 
   /* Execute and bump opcode counters. */
+  RSPEXStage(rsp, rsSource, rtSource);
   RSPCycleCP2(&rsp->cp2);
-  RSPEXStage(rsp);
   RSPRDStage(rsp);
 
 #ifndef NDEBUG
@@ -102,15 +100,16 @@ CycleRSP(struct RSP *rsp) {
   ldStoreStall = IsLoadStoreStall(rfOpcode.infoFlags, dfOpcode.infoFlags);
   ldUseStall = IsLoadUseStall(&rsp->pipeline.rdexLatch, exOpcode.infoFlags,
     exOpcode.infoFlags, rsp->pipeline.exdfLatch.result.dest,
-    rsp->pipeline.dfwbLatch.result.dest);
+    rsp->pipeline.dfwbLatch.result.dest, rsSource, rtSource);
 
   /* Fetch if there were no stalls. */
-  if (!ldStoreStall && !ldUseStall)
-    RSPIFStage(rsp);
-  else {
+  if (unlikely(ldStoreStall | ldUseStall)) {
     RSPInvalidateOpcode(&rsp->pipeline.rdexLatch.opcode);
     RSPInvalidateVectorOpcode(&rsp->cp2.opcode);
   }
+
+  else
+    RSPIFStage(rsp);
 }
 
 /* ============================================================================

@@ -30,11 +30,11 @@ RSPDFStage(struct RSP *rsp) {
   struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
   RSPMemoryFunction function;
 
-  if ((function = exdfLatch->memoryData.function) != NULL) {
-    function(&exdfLatch->memoryData, rsp->dmem);
-    exdfLatch->memoryData.function = NULL;
-  }
-
   dfwbLatch->result = exdfLatch->result;
+
+  if ((function = exdfLatch->memoryData.function) != NULL) {
+    exdfLatch->memoryData.function = NULL;
+    function(&exdfLatch->memoryData, rsp->dmem);
+  }
 }
 

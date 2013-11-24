@@ -352,12 +352,13 @@ void
 RSPLB(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+  struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
 
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
-  exdfLatch->memoryData.target = &exdfLatch->result.data;
+  exdfLatch->memoryData.target = &dfwbLatch->result.data;
   exdfLatch->memoryData.function = &LoadByte;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -369,12 +370,13 @@ void
 RSPLBU(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+  struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
 
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
-  exdfLatch->memoryData.target = &exdfLatch->result.data;
+  exdfLatch->memoryData.target = &dfwbLatch->result.data;
   exdfLatch->memoryData.function = &LoadByteUnsigned;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -443,12 +445,13 @@ void
 RSPLH(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+  struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
 
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
-  exdfLatch->memoryData.target = &exdfLatch->result.data;
+  exdfLatch->memoryData.target = &dfwbLatch->result.data;
   exdfLatch->memoryData.function = &LoadHalf;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -460,12 +463,13 @@ void
 RSPLHU(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+  struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
 
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
-  exdfLatch->memoryData.target = &exdfLatch->result.data;
+  exdfLatch->memoryData.target = &dfwbLatch->result.data;
   exdfLatch->memoryData.function = &LoadHalfUnsigned;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -647,12 +651,13 @@ void
 RSPLW(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
+  struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
 
   unsigned dest = rdexLatch->iw >> 16 & 0x1F;
   int32_t offset = (int16_t) rdexLatch->iw;
 
   exdfLatch->result.dest = dest;
-  exdfLatch->memoryData.target = &exdfLatch->result.data;
+  exdfLatch->memoryData.target = &dfwbLatch->result.data;
   exdfLatch->memoryData.function = &LoadWord;
   exdfLatch->memoryData.offset = rs + offset;
 }
@@ -1214,13 +1219,12 @@ RSPXORI(struct RSP *rsp, uint32_t rs, uint32_t unused(rt)) {
  *  RSPEXStage: Invokes the appropriate functional unit.
  * ========================================================================= */
 void
-RSPEXStage(struct RSP *rsp) {
+RSPEXStage(struct RSP *rsp,
+  unsigned rsForwardingRegister, unsigned rtForwardingRegister) {
   const struct RSPRDEXLatch *rdexLatch = &rsp->pipeline.rdexLatch;
   const struct RSPDFWBLatch *dfwbLatch = &rsp->pipeline.dfwbLatch;
   struct RSPEXDFLatch *exdfLatch = &rsp->pipeline.exdfLatch;
   uint32_t rs, rt, temp = rsp->regs[dfwbLatch->result.dest];
-  uint32_t rsForwardingRegister = GET_RS(rdexLatch->iw);
-  uint32_t rtForwardingRegister = GET_RT(rdexLatch->iw);
 
   /* Always invalidate results. */
   exdfLatch->result.dest = 0;
